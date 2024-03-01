@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Clinical teal / slate palette — light mode */
+    --background: 210 20% 98%;
+    --foreground: 215 25% 12%;
+
+    --surface: 0 0% 100%;
+    --surface-elevated: 210 18% 96%;
+    --surface-muted: 210 16% 94%;
+
+    --primary: 187 72% 32%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 187 72% 28%;
+    --primary-muted: 187 45% 92%;
+
+    --secondary: 215 16% 47%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 199 89% 38%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 210 14% 93%;
+    --muted-foreground: 215 14% 42%;
+
+    --border: 214 18% 88%;
+    --border-strong: 214 16% 78%;
+    --input: 214 18% 88%;
+    --ring: 187 72% 32%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 12%;
+    --success: 152 60% 36%;
+    --success-foreground: 0 0% 100%;
+    --info: 199 89% 38%;
+    --info-foreground: 0 0% 100%;
+
+    --sidebar: 215 28% 14%;
+    --sidebar-foreground: 210 18% 92%;
+    --sidebar-muted: 215 20% 22%;
+    --sidebar-accent: 187 55% 42%;
+    --sidebar-border: 215 22% 20%;
+
+    --topbar: 0 0% 100%;
+    --topbar-foreground: 215 25% 12%;
+    --topbar-border: 214 18% 90%;
+
+    --chart-1: 187 72% 32%;
+    --chart-2: 199 89% 38%;
+    --chart-3: 152 60% 36%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 215 16% 47%;
+
+    --radius: 0.375rem;
+    --radius-lg: 0.5rem;
+    --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+    --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.06), 0 2px 4px -2px rgb(15 23 42 / 0.04);
+    --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.04);
+
+    --font-sans: var(--font-body, 'IBM Plex Sans', system-ui, sans-serif);
+    --font-serif: var(--font-display, 'Source Serif 4', Georgia, serif);
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  .dark {
+    --background: 215 28% 8%;
+    --foreground: 210 18% 92%;
+
+    --surface: 215 26% 11%;
+    --surface-elevated: 215 24% 14%;
+    --surface-muted: 215 22% 16%;
+
+    --primary: 187 55% 48%;
+    --primary-foreground: 215 28% 8%;
+    --primary-hover: 187 55% 54%;
+    --primary-muted: 187 35% 16%;
+
+    --secondary: 215 14% 55%;
+    --secondary-foreground: 215 28% 8%;
+
+    --accent: 199 75% 52%;
+    --accent-foreground: 215 28% 8%;
+
+    --muted: 215 22% 16%;
+    --muted-foreground: 215 12% 62%;
+
+    --border: 215 20% 20%;
+    --border-strong: 215 18% 28%;
+    --input: 215 20% 20%;
+    --ring: 187 55% 48%;
+
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 38 85% 55%;
+    --warning-foreground: 38 92% 8%;
+    --success: 152 50% 45%;
+    --success-foreground: 215 28% 8%;
+    --info: 199 75% 52%;
+    --info-foreground: 215 28% 8%;
+
+    --sidebar: 215 30% 6%;
+    --sidebar-foreground: 210 18% 88%;
+    --sidebar-muted: 215 24% 12%;
+    --sidebar-accent: 187 55% 42%;
+    --sidebar-border: 215 22% 14%;
+
+    --topbar: 215 26% 11%;
+    --topbar-foreground: 210 18% 92%;
+    --topbar-border: 215 20% 18%;
+
+    --chart-1: 187 55% 48%;
+    --chart-2: 199 75% 52%;
+    --chart-3: 152 50% 45%;
+    --chart-4: 38 85% 55%;
+    --chart-5: 215 14% 55%;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.25), 0 2px 4px -2px rgb(0 0 0 / 0.15);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .clinical-grid {
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}

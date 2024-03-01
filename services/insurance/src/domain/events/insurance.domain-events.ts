@@ -1,0 +1,8 @@
+export const INSURANCE_EVENT_TYPES = {
+  CREATED: 'INSURANCE.CREATED',
+  UPDATED: 'INSURANCE.UPDATED',
+  DELETED: 'INSURANCE.DELETED',
+} as const;
+
+export type InsuranceEventType =
+  (typeof INSURANCE_EVENT_TYPES)[keyof typeof INSURANCE_EVENT_TYPES];

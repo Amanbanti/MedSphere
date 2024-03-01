@@ -1,0 +1,27 @@
+import { Injectable, Inject } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
+import { nowIso, type UUID } from '@medsphere/shared';
+import type { ListPharmacyInventoryCommand } from '../commands/list-pharmacy-inventory.command';
+import { PHARMACY_ITEM_REPOSITORY, type PharmacyItemRepository } from '../../domain/repositories/pharmacy-item.repository';
+import { PharmacyItem } from '../../domain/entities/pharmacy-item.entity';
+import {
+  PharmacyNotFoundError,
+  ValidationError,
+} from '../../domain/errors/pharmacy.errors';
+import { PharmacyItemMapper } from '../mappers/pharmacy-item.mapper';
+
+@Injectable()
+export class ListPharmacyInventoryUseCase {
+  constructor(
+    @Inject(PHARMACY_ITEM_REPOSITORY) private readonly repository: PharmacyItemRepository,
+  ) {}
+
+  async execute(command: ListPharmacyInventoryCommand) {
+    const query = command.query ?? {};
+    const result = await this.repository.list(command.organizationId, query);
+    return {
+      items: result.items.map((item) => PharmacyItemMapper.toDto(item)),
+      meta: result.meta,
+    };
+  }
+}

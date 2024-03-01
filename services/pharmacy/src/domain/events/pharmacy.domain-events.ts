@@ -1,0 +1,8 @@
+export const PHARMACY_EVENT_TYPES = {
+  CREATED: 'PHARMACY.CREATED',
+  UPDATED: 'PHARMACY.UPDATED',
+  DELETED: 'PHARMACY.DELETED',
+} as const;
+
+export type PharmacyEventType =
+  (typeof PHARMACY_EVENT_TYPES)[keyof typeof PHARMACY_EVENT_TYPES];

@@ -1,0 +1,20 @@
+/** MedSphere contract test index */
+import './patient.contract.spec';
+import './doctor.contract.spec';
+import './appointment.contract.spec';
+import './medical-record.contract.spec';
+import './pharmacy.contract.spec';
+import './laboratory.contract.spec';
+import './radiology.contract.spec';
+import './imaging.contract.spec';
+import './billing.contract.spec';
+import './insurance.contract.spec';
+import './payment.contract.spec';
+import './prescription.contract.spec';
+import './notification.contract.spec';
+import './analytics.contract.spec';
+import './audit.contract.spec';
+import './search.contract.spec';
+import './video-consultation.contract.spec';
+import './queue.contract.spec';
+import './worker.contract.spec';

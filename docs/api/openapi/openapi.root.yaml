@@ -1,0 +1,260 @@
+openapi: 3.1.0
+info:
+  title: MedSphere Platform API
+  version: 1.0.0
+  description: |
+    Root OpenAPI composition for MedSphere hospital information system APIs.
+    Individual domain specifications are split by bounded context.
+  contact:
+    name: MedSphere Platform Engineering
+servers:
+  - url: https://api.medsphere.internal
+    description: Production API gateway
+tags:
+  - name: Authentication
+    description: MedSphere Auth API
+  - name: Patients
+    description: MedSphere Patient API
+  - name: Appointments
+    description: MedSphere Appointment API
+  - name: Clinical Records
+    description: MedSphere EMR API
+  - name: Laboratory
+    description: MedSphere Laboratory API
+  - name: Radiology
+    description: MedSphere Radiology API
+  - name: Pharmacy
+    description: MedSphere Pharmacy API
+  - name: Billing
+    description: MedSphere Billing API
+  - name: Insurance
+    description: MedSphere Insurance API
+  - name: Telemedicine
+    description: MedSphere Telemedicine API
+  - name: Notifications
+    description: MedSphere Notification API
+  - name: Analytics
+    description: MedSphere Analytics API
+  - name: Search
+    description: MedSphere Search API
+paths:
+  /auth/v1/health:
+    get:
+      operationId: authHealthCheck
+      tags: [Authentication]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /patients/v1/health:
+    get:
+      operationId: patientHealthCheck
+      tags: [Patients]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /appointments/v1/health:
+    get:
+      operationId: appointmentHealthCheck
+      tags: [Appointments]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /emr/v1/health:
+    get:
+      operationId: emrHealthCheck
+      tags: [Clinical Records]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /laboratory/v1/health:
+    get:
+      operationId: laboratoryHealthCheck
+      tags: [Laboratory]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /radiology/v1/health:
+    get:
+      operationId: radiologyHealthCheck
+      tags: [Radiology]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /pharmacy/v1/health:
+    get:
+      operationId: pharmacyHealthCheck
+      tags: [Pharmacy]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /billing/v1/health:
+    get:
+      operationId: billingHealthCheck
+      tags: [Billing]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /insurance/v1/health:
+    get:
+      operationId: insuranceHealthCheck
+      tags: [Insurance]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /telemedicine/v1/health:
+    get:
+      operationId: telemedicineHealthCheck
+      tags: [Telemedicine]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /notifications/v1/health:
+    get:
+      operationId: notificationHealthCheck
+      tags: [Notifications]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /analytics/v1/health:
+    get:
+      operationId: analyticsHealthCheck
+      tags: [Analytics]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /search/v1/health:
+    get:
+      operationId: searchHealthCheck
+      tags: [Search]
+      summary: Health check
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time

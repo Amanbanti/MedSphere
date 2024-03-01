@@ -1,0 +1,712 @@
+// Auto-generated: 15-audit-versions.prisma
+// Regenerate: node tools/codegen/generate_clinical_fragments.mjs
+
+model EntityVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("entity_versions")
+}
+
+model EntityVersionDiff {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("entity_version_diffs")
+}
+
+model EntityAuditTrail {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("entity_audit_trails")
+}
+
+model EntitySnapshot {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("entity_snapshots")
+}
+
+model ClinicalRecordVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("clinical_record_versions")
+}
+
+model PatientRecordVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("patient_record_versions")
+}
+
+model EncounterVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  encounterId String @map("encounter_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("encounter_versions")
+}
+
+model LabResultVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  labOrderId String? @map("lab_order_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("lab_result_versions")
+}
+
+model RadiologyReportVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  radiologyOrderId String? @map("radiology_order_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("radiology_report_versions")
+}
+
+model PrescriptionVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  prescriptionId String? @map("prescription_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("prescription_versions")
+}
+
+model BillingRecordVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  billingAccountId String? @map("billing_account_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("billing_record_versions")
+}
+
+model InsuranceClaimVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  payerId String? @map("payer_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("insurance_claim_versions")
+}
+
+model DocumentVersionHistory {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("document_version_histories")
+}
+
+model ConfigurationVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("configuration_versions")
+}
+
+model MasterDataVersion {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("master_data_versions")
+}
+
+model DataRetentionPolicy {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("data_retention_policies")
+}
+
+model DataRetentionExecution {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("data_retention_executions")
+}
+
+model DataAccessLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("data_access_logs")
+}
+
+model PhiAccessLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("phi_access_logs")
+}
+
+model BreakGlassAccess {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("break_glass_accesses")
+}
+
+model ConsentAudit {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("consent_audits")
+}
+
+model ImmutableAuditBlock {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("immutable_audit_blocks")
+}
+
+model AuditExport {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("audit_exports")
+}
+
+model AuditRetention {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("audit_retentions")
+}
+
+model ChangeDataCapture {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("change_data_captures")
+}
+
+model EntityLock {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("entity_locks")
+}
+
+model EntityMergeAudit {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("entity_merge_audits")
+}
+
+model FieldLevelAudit {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("field_level_audits")
+}
+
+model RecordIntegrityCheck {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("record_integrity_checks")
+}
+
+model ComplianceExportJob {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("compliance_export_jobs")
+}
+
+model HipaaDisclosureLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("hipaa_disclosure_logs")
+}
+
+model SecurityIncidentLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  entityType String @map("entity_type")
+  entityId String @map("entity_id") @db.Uuid
+  versionNumber Int? @map("version_number") @default(1)
+  changedById String? @map("changed_by_id") @db.Uuid
+  changeType String? @map("change_type")
+  beforeState Json @map("before_state") @default("{}")
+  afterState Json @map("after_state") @default("{}")
+  diff Json @map("diff") @default("{}")
+  changedAt DateTime? @map("changed_at") @db.Timestamptz(6)
+  reason String?
+  ipAddress String? @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("security_incident_logs")
+}

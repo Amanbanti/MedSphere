@@ -1,0 +1,8 @@
+export const ANALYTICS_EVENT_TYPES = {
+  CREATED: 'ANALYTICS.CREATED',
+  UPDATED: 'ANALYTICS.UPDATED',
+  DELETED: 'ANALYTICS.DELETED',
+} as const;
+
+export type AnalyticsEventType =
+  (typeof ANALYTICS_EVENT_TYPES)[keyof typeof ANALYTICS_EVENT_TYPES];

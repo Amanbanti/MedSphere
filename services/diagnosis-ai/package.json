@@ -1,0 +1,13 @@
+﻿{
+  "name": "@medsphere/service-diagnosis-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "uvicorn src.api.main:app --reload --host 0.0.0.0 --port 4200",
+    "start": "uvicorn src.api.main:app --host 0.0.0.0 --port 4200",
+    "test": "pytest",
+    "test:cov": "pytest --cov=src --cov-report=term-missing",
+    "lint": "ruff check src tests",
+    "typecheck": "mypy src"
+  }
+}

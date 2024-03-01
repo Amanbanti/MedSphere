@@ -1,0 +1,23 @@
+﻿{
+  "name": "@medsphere/sdk",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./clients/auth": "./src/clients/auth.client.ts",
+    "./clients/http": "./src/clients/http.client.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "clean": "rimraf dist coverage"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

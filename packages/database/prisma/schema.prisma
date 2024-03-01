@@ -1,0 +1,504 @@
+// MedSphere PostgreSQL schema — Prisma ORM
+// Phase 1 foundation: identity, tenancy, RBAC, auditing, feature flags.
+// Clinical domains live in prisma/models/*.prisma and merge into schema.generated.prisma
+// via: python tools/codegen/merge_prisma_schema.py
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto, uuid_ossp]
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+  LOCKED
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  MICROSOFT
+  SAML
+  API_KEY
+}
+
+enum MfaMethod {
+  TOTP
+  SMS
+  EMAIL
+  WEBAUTHN
+}
+
+enum OrganizationType {
+  HOSPITAL
+  CLINIC
+  LABORATORY
+  PHARMACY
+  INSURANCE
+  TELEHEALTH
+  MULTI_FACILITY
+}
+
+enum FacilityType {
+  ACUTE_CARE
+  AMBULATORY
+  EMERGENCY
+  ICU
+  IMAGING_CENTER
+  LAB
+  PHARMACY
+  REHAB
+  LONG_TERM_CARE
+}
+
+enum SystemRole {
+  SUPER_ADMIN
+  ORG_ADMIN
+  FACILITY_ADMIN
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  PHARMACIST
+  LAB_TECHNICIAN
+  RADIOLOGIST
+  BILLING_SPECIALIST
+  INSURANCE_AGENT
+  PATIENT
+  AUDITOR
+  IT_SUPPORT
+}
+
+enum AuditOutcome {
+  SUCCESS
+  FAILURE
+  DENIED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  UNKNOWN
+  PREFER_NOT_TO_SAY
+}
+
+model Organization {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String           @db.VarChar(200)
+  slug           String           @unique @db.VarChar(100)
+  type           OrganizationType
+  legalName      String?          @map("legal_name") @db.VarChar(300)
+  taxIdEncrypted String?          @map("tax_id_encrypted")
+  email          String?          @db.VarChar(320)
+  phone          String?          @db.VarChar(20)
+  isActive       Boolean          @default(true) @map("is_active")
+  settings       Json             @default("{}")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy      String?          @map("created_by") @db.Uuid
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?          @map("updated_by") @db.Uuid
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamptz(6)
+  deletedBy      String?          @map("deleted_by") @db.Uuid
+  version        Int              @default(1)
+
+  facilities     Facility[]
+  departments    Department[]
+  users          User[]
+  roles          RoleAssignment[]
+  apiKeys        ApiKey[]
+  featureFlags   FeatureFlag[]
+  auditLogs      AuditLog[]
+  patients       Patient[]
+  teams          Team[]
+
+  @@index([type, isActive])
+  @@index([deletedAt])
+  @@map("organizations")
+}
+
+model Facility {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String       @db.VarChar(200)
+  code           String       @db.VarChar(50)
+  type           FacilityType
+  timezone       String       @default("UTC") @db.VarChar(64)
+  addressLine1   String       @map("address_line1") @db.VarChar(200)
+  addressLine2   String?      @map("address_line2") @db.VarChar(200)
+  city           String       @db.VarChar(100)
+  state          String       @db.VarChar(100)
+  postalCode     String       @map("postal_code") @db.VarChar(20)
+  country        String       @db.Char(2)
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy      String?      @map("created_by") @db.Uuid
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?      @map("updated_by") @db.Uuid
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+  deletedBy      String?      @map("deleted_by") @db.Uuid
+  version        Int          @default(1)
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  departments    Department[]
+  roleAssignments RoleAssignment[]
+  patients       Patient[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId, isActive])
+  @@index([deletedAt])
+  @@map("facilities")
+}
+
+model Department {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  facilityId     String       @map("facility_id") @db.Uuid
+  name           String       @db.VarChar(200)
+  code           String       @db.VarChar(50)
+  description    String?      @db.VarChar(1000)
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+  version        Int          @default(1)
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  facility       Facility     @relation(fields: [facilityId], references: [id])
+
+  @@unique([facilityId, code])
+  @@index([organizationId])
+  @@map("departments")
+}
+
+model User {
+  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId     String       @map("organization_id") @db.Uuid
+  email              String       @db.VarChar(320)
+  emailNormalized    String       @map("email_normalized") @db.VarChar(320)
+  passwordHash       String?      @map("password_hash")
+  firstName          String       @map("first_name") @db.VarChar(100)
+  lastName           String       @map("last_name") @db.VarChar(100)
+  displayName        String       @map("display_name") @db.VarChar(200)
+  phone              String?      @db.VarChar(20)
+  status             UserStatus   @default(PENDING_VERIFICATION)
+  emailVerifiedAt    DateTime?    @map("email_verified_at") @db.Timestamptz(6)
+  phoneVerifiedAt    DateTime?    @map("phone_verified_at") @db.Timestamptz(6)
+  mfaEnabled         Boolean      @default(false) @map("mfa_enabled")
+  failedLoginCount   Int          @default(0) @map("failed_login_count")
+  lockedUntil        DateTime?    @map("locked_until") @db.Timestamptz(6)
+  lastLoginAt        DateTime?    @map("last_login_at") @db.Timestamptz(6)
+  passwordChangedAt  DateTime?    @map("password_changed_at") @db.Timestamptz(6)
+  createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy          String?      @map("created_by") @db.Uuid
+  updatedAt          DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy          String?      @map("updated_by") @db.Uuid
+  deletedAt          DateTime?    @map("deleted_at") @db.Timestamptz(6)
+  deletedBy          String?      @map("deleted_by") @db.Uuid
+  version            Int          @default(1)
+
+  organization       Organization @relation(fields: [organizationId], references: [id])
+  identities         UserIdentity[]
+  sessions           Session[]
+  mfaMethods         UserMfaMethod[]
+  roleAssignments    RoleAssignment[]
+  apiKeys            ApiKey[]
+  passwordResets     PasswordResetToken[]
+  emailVerifications EmailVerificationToken[]
+  teamMemberships    TeamMember[]
+  auditLogs          AuditLog[]   @relation("AuditActor")
+
+  @@unique([organizationId, emailNormalized])
+  @@index([emailNormalized])
+  @@index([organizationId, status])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model UserIdentity {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  provider       AuthProvider
+  providerUserId String       @map("provider_user_id") @db.VarChar(255)
+  email          String?      @db.VarChar(320)
+  profile        Json         @default("{}")
+  linkedAt       DateTime     @default(now()) @map("linked_at") @db.Timestamptz(6)
+  lastUsedAt     DateTime?    @map("last_used_at") @db.Timestamptz(6)
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("user_identities")
+}
+
+model Session {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  tokenFamily     String    @map("token_family") @db.Uuid
+  refreshTokenHash String   @map("refresh_token_hash")
+  ipAddress       String?   @map("ip_address") @db.VarChar(64)
+  userAgent       String?   @map("user_agent") @db.VarChar(500)
+  mfaVerified     Boolean   @default(false) @map("mfa_verified")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  lastSeenAt      DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(6)
+  revokeReason    String?   @map("revoke_reason") @db.VarChar(200)
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([tokenFamily])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model UserMfaMethod {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  method        MfaMethod
+  secretEncrypted String? @map("secret_encrypted")
+  isPrimary     Boolean   @default(false) @map("is_primary")
+  verifiedAt    DateTime? @map("verified_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  disabledAt    DateTime? @map("disabled_at") @db.Timestamptz(6)
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recoveryCodes MfaRecoveryCode[]
+
+  @@unique([userId, method])
+  @@index([userId])
+  @@map("user_mfa_methods")
+}
+
+model MfaRecoveryCode {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mfaMethodId  String    @map("mfa_method_id") @db.Uuid
+  codeHash     String    @map("code_hash")
+  usedAt       DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  mfaMethod    UserMfaMethod @relation(fields: [mfaMethodId], references: [id], onDelete: Cascade)
+
+  @@index([mfaMethodId])
+  @@map("mfa_recovery_codes")
+}
+
+model MfaChallenge {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  method      MfaMethod
+  codeHash    String?   @map("code_hash")
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt  DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  ipAddress   String?   @map("ip_address") @db.VarChar(64)
+
+  @@index([userId, expiresAt])
+  @@map("mfa_challenges")
+}
+
+model RoleAssignment {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String     @map("organization_id") @db.Uuid
+  userId         String     @map("user_id") @db.Uuid
+  role           SystemRole
+  facilityId     String?    @map("facility_id") @db.Uuid
+  assignedAt     DateTime   @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  assignedBy     String?    @map("assigned_by") @db.Uuid
+  expiresAt      DateTime?  @map("expires_at") @db.Timestamptz(6)
+  revokedAt      DateTime?  @map("revoked_at") @db.Timestamptz(6)
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facility       Facility?    @relation(fields: [facilityId], references: [id])
+
+  @@index([userId, revokedAt])
+  @@index([organizationId, role])
+  @@map("role_assignments")
+}
+
+model Team {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String       @db.VarChar(200)
+  description    String?      @db.VarChar(1000)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  members        TeamMember[]
+
+  @@unique([organizationId, name])
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId    String   @map("team_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  joinedAt  DateTime @default(now()) @map("joined_at") @db.Timestamptz(6)
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model ApiKey {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  name           String       @db.VarChar(100)
+  keyPrefix      String       @map("key_prefix") @db.VarChar(20)
+  keyHash        String       @map("key_hash")
+  scopes         String[]
+  expiresAt      DateTime?    @map("expires_at") @db.Timestamptz(6)
+  lastUsedAt     DateTime?    @map("last_used_at") @db.Timestamptz(6)
+  revokedAt      DateTime?    @map("revoked_at") @db.Timestamptz(6)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([keyPrefix])
+  @@index([organizationId, revokedAt])
+  @@map("api_keys")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verification_tokens")
+}
+
+model FeatureFlag {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String?      @map("organization_id") @db.Uuid
+  key            String       @db.VarChar(100)
+  description    String?      @db.VarChar(500)
+  enabled        Boolean      @default(false)
+  rules          Json         @default("{}")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, key])
+  @@index([key, enabled])
+  @@map("feature_flags")
+}
+
+model AuditLog {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  actorId        String?      @map("actor_id") @db.Uuid
+  action         String       @db.VarChar(100)
+  resourceType   String       @map("resource_type") @db.VarChar(100)
+  resourceId     String       @map("resource_id") @db.VarChar(100)
+  outcome        AuditOutcome
+  ipAddress      String?      @map("ip_address") @db.VarChar(64)
+  userAgent      String?      @map("user_agent") @db.VarChar(500)
+  correlationId  String?      @map("correlation_id") @db.Uuid
+  metadata       Json         @default("{}")
+  occurredAt     DateTime     @default(now()) @map("occurred_at") @db.Timestamptz(6)
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  actor          User?        @relation("AuditActor", fields: [actorId], references: [id])
+
+  @@index([organizationId, occurredAt])
+  @@index([actorId, occurredAt])
+  @@index([resourceType, resourceId])
+  @@index([correlationId])
+  @@map("audit_logs")
+}
+
+model OutboxEvent {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  aggregateType String    @map("aggregate_type") @db.VarChar(100)
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  eventType     String    @map("event_type") @db.VarChar(150)
+  payload       Json
+  headers       Json      @default("{}")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(6)
+  attempts      Int       @default(0)
+
+  @@index([publishedAt, createdAt])
+  @@index([aggregateType, aggregateId])
+  @@map("outbox_events")
+}
+
+model IdempotencyRecord {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  key            String   @db.VarChar(200)
+  requestHash    String   @map("request_hash")
+  responseCode   Int      @map("response_code")
+  responseBody   Json     @map("response_body")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@unique([organizationId, key])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
+/// Minimal patient stub for Phase 1 cross-service contracts; expanded in Phase 2.
+model Patient {
+  id               String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String       @map("organization_id") @db.Uuid
+  facilityId       String?      @map("facility_id") @db.Uuid
+  mrn              String       @db.VarChar(50)
+  firstName        String       @map("first_name") @db.VarChar(100)
+  lastName         String       @map("last_name") @db.VarChar(100)
+  dateOfBirth      DateTime     @map("date_of_birth") @db.Date
+  gender           Gender       @default(UNKNOWN)
+  email            String?      @db.VarChar(320)
+  phone            String?      @db.VarChar(20)
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime?    @map("deleted_at") @db.Timestamptz(6)
+  version          Int          @default(1)
+
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  facility         Facility?    @relation(fields: [facilityId], references: [id])
+
+  @@unique([organizationId, mrn])
+  @@index([organizationId, lastName, firstName])
+  @@index([deletedAt])
+  @@map("patients")
+}

@@ -1,0 +1,21 @@
+{
+  "description": "MedSphere synthetic CDS rules for diagnosis-ai service",
+  "totalParts": 30,
+  "rulesPerPart": 150,
+  "categories": [
+    "drug-allergy",
+    "drug-drug",
+    "drug-disease",
+    "lab-critical",
+    "preventive-care",
+    "quality-measure",
+    "order-set",
+    "diagnosis-suggestion",
+    "contraindication",
+    "dosing",
+    "duplicate-therapy",
+    "age-based",
+    "pregnancy",
+    "renal-dosing"
+  ]
+}

@@ -1,0 +1,81 @@
+groups:
+  - name: medsphere-api
+    rules:
+      - alert: ApiGatewayHighErrorRate
+        expr: sum(rate(http_requests_total{service="api-gateway",status=~"5.."}[5m])) / sum(rate(http_requests_total{service="api-gateway"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: API Gateway error rate above 5%
+          description: "5xx error ratio is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      - alert: ApiGatewayHighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="api-gateway"}[5m])) by (le)) > 2
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: API Gateway P95 latency above 2s
+
+  - name: medsphere-auth
+    rules:
+      - alert: AuthLoginFailureSpike
+        expr: sum(rate(auth_login_total{result="failure"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: Elevated authentication failures detected
+
+      - alert: AuthServiceDown
+        expr: up{job="auth"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: Auth service is unreachable
+
+  - name: medsphere-clinical
+    rules:
+      - alert: ClinicalServiceHighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=~"patient|medical-record|laboratory|pharmacy"}[5m])) by (service, le)) > 3
+        for: 10m
+        labels:
+          severity: warning
+          team: clinical
+        annotations:
+          summary: "{{ $labels.service }} P95 latency above 3s"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: pg_stat_activity_count / pg_settings_max_connections > 0.85
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: PostgreSQL connection pool above 85% utilization
+
+  - name: medsphere-kafka
+    rules:
+      - alert: KafkaConsumerLag
+        expr: kafka_consumergroup_lag > 10000
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: Kafka consumer lag exceeds 10k messages for {{ $labels.consumergroup }}
+
+      - alert: KafkaBrokerDown
+        expr: kafka_brokers < 3
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: Kafka cluster has fewer than 3 brokers online

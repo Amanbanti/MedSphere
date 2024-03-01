@@ -1,0 +1,100 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+.pnp.*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+.turbo/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+secrets/
+.secrets/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+blob-report/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+Desktop.ini
+ehthumbs.db
+
+# Docker volumes
+infrastructure/docker/data/
+infrastructure/docker/volumes/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Kubernetes secrets (never commit)
+infrastructure/kubernetes/secrets/*.yaml
+!infrastructure/kubernetes/secrets/.gitkeep
+!infrastructure/kubernetes/secrets/*.example.yaml
+
+# Generated
+*.generated.*
+packages/database/prisma/generated/
+
+# Misc
+*.local
+.tmp/
+.cache/
+.medsphere/

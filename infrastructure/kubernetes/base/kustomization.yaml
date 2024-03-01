@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: medsphere
+resources:
+  - api-gateway.yaml
+  - auth.yaml
+  - patient.yaml
+  - doctor.yaml
+  - appointment.yaml
+  - medical-record.yaml
+  - prescription.yaml
+  - laboratory.yaml
+  - radiology.yaml
+  - imaging.yaml
+  - pharmacy.yaml
+  - billing.yaml
+  - insurance.yaml
+  - payment.yaml
+  - notification.yaml
+  - video-consultation.yaml
+  - analytics.yaml
+  - search.yaml
+  - audit.yaml
+  - queue.yaml
+  - worker.yaml
+commonLabels:
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/part-of: medsphere

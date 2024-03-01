@@ -1,0 +1,56 @@
+import { RestorePaymentTransactionUseCase } from '../../src/application/use-cases/restore-payment-transaction-use-case.use-case';
+import { RestorePaymentTransactionCommand } from '../../src/application/commands/restore-payment-transaction.command';
+import type { JwtAccessPayload, UUID } from '@medsphere/shared';
+
+describe('RestorePaymentTransactionUseCase', () => {
+  const actor = {
+    sub: 'user-1' as UUID,
+    orgId: 'org-1' as UUID,
+    facilityIds: [],
+    roles: ['ORG_ADMIN'],
+    permissions: [],
+    sessionId: 'sess-1' as UUID,
+    mfaVerified: true,
+    iat: 0,
+    exp: 999999,
+    iss: 'medsphere',
+    aud: 'medsphere',
+  } as JwtAccessPayload;
+
+  const mockRepository = {
+    findById: jest.fn(),
+    list: jest.fn().mockResolvedValue({ data: [], meta: { page: 1, pageSize: 25, totalItems: 0, totalPages: 0, hasNext: false, hasPrevious: false } }),
+    save: jest.fn(),
+  };
+
+  const mockOrchestrator = {
+    getOrThrow: jest.fn().mockResolvedValue({
+      touch: jest.fn(),
+      assertActive: jest.fn(),
+    }),
+  };
+
+  let useCase: RestorePaymentTransactionUseCase;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useCase = new RestorePaymentTransactionUseCase(mockRepository as never, mockOrchestrator as never);
+  });
+
+  it('executes restore for authorized actor', async () => {
+    const command = new RestorePaymentTransactionCommand(
+      actor,
+      'org-1' as UUID,
+      'paymenttransaction-1' as UUID,
+      { reason: 'test' },
+    );
+    await useCase.execute(command);
+    expect(mockOrchestrator.getOrThrow).toHaveBeenCalled();
+  });
+
+  it('rejects cross-tenant access', async () => {
+    const badActor = { ...actor, orgId: 'other-org' as UUID };
+    const command = new RestorePaymentTransactionCommand(badActor, 'org-1' as UUID, 'id-1' as UUID);
+    await expect(useCase.execute(command)).rejects.toThrow();
+  });
+});

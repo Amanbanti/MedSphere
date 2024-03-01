@@ -1,0 +1,8 @@
+export const LABORATORY_EVENT_TYPES = {
+  CREATED: 'LABORATORY.CREATED',
+  UPDATED: 'LABORATORY.UPDATED',
+  DELETED: 'LABORATORY.DELETED',
+} as const;
+
+export type LaboratoryEventType =
+  (typeof LABORATORY_EVENT_TYPES)[keyof typeof LABORATORY_EVENT_TYPES];

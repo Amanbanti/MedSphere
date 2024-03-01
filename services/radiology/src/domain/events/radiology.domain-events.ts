@@ -1,0 +1,8 @@
+export const RADIOLOGY_EVENT_TYPES = {
+  CREATED: 'RADIOLOGY.CREATED',
+  UPDATED: 'RADIOLOGY.UPDATED',
+  DELETED: 'RADIOLOGY.DELETED',
+} as const;
+
+export type RadiologyEventType =
+  (typeof RADIOLOGY_EVENT_TYPES)[keyof typeof RADIOLOGY_EVENT_TYPES];

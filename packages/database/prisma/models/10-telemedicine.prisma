@@ -1,0 +1,869 @@
+// Auto-generated: 10-telemedicine.prisma
+// Regenerate: node tools/codegen/generate_clinical_fragments.mjs
+
+enum TelemedicineSessionStatus { SCHEDULED WAITING IN_PROGRESS COMPLETED CANCELLED FAILED }
+enum ParticipantRole { PATIENT PROVIDER NURSE INTERPRETER OBSERVER CAREGIVER }
+enum RecordingStatus { NOT_RECORDED RECORDING PROCESSING AVAILABLE DELETED FAILED }
+
+model TelemedicineSession {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_sessions")
+}
+
+model TelemedicineParticipant {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_participants")
+}
+
+model TelemedicineChatMessage {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_chat_messages")
+}
+
+model TelemedicineChatAttachment {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_chat_attachments")
+}
+
+model TelemedicineRecording {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_recordings")
+}
+
+model TelemedicineRecordingMetadata {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_recording_metadatas")
+}
+
+model TelemedicineSessionEvent {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_session_events")
+}
+
+model TelemedicineWaitingRoom {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_waiting_rooms")
+}
+
+model TelemedicineWaitingRoomEntry {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_waiting_room_entries")
+}
+
+model TelemedicineConsent {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_consents")
+}
+
+model TelemedicineDevice {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_devices")
+}
+
+model TelemedicineConnectionLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_connection_logs")
+}
+
+model TelemedicineQualityMetric {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_quality_metrics")
+}
+
+model TelemedicineSessionNote {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_session_notes")
+}
+
+model TelemedicinePrescriptionLink {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_prescription_links")
+}
+
+model TelemedicineFollowUp {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_follow_ups")
+}
+
+model TelemedicineSessionRating {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_session_ratings")
+}
+
+model TelemedicineInterpreter {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_interpreters")
+}
+
+model TelemedicineScreenShare {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_screen_shares")
+}
+
+model TelemedicineBreakoutRoom {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_breakout_rooms")
+}
+
+model TelemedicinePoll {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_polls")
+}
+
+model TelemedicinePollResponse {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_poll_responses")
+}
+
+model TelemedicineWhiteboard {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_whiteboards")
+}
+
+model TelemedicineSessionBilling {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_session_billings")
+}
+
+model TelemedicineTechnicalIssue {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_technical_issues")
+}
+
+model TelemedicineBandwidthLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_bandwidth_logs")
+}
+
+model TelemedicineSessionRecordingConsent {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  sessionId String? @map("session_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([sessionId])
+  @@map("telemedicine_session_recording_consents")
+}

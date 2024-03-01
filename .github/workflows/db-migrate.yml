@@ -1,0 +1,59 @@
+name: Database Migrate
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+      dry_run:
+        description: Dry run (generate only)
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  migrate:
+    name: Prisma Migrate — ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Merge Prisma schema
+        run: node tools/codegen/merge_prisma_schema.mjs
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Migrate deploy
+        if: ${{ inputs.dry_run != true }}
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Seed (dev/staging only)
+        if: ${{ inputs.dry_run != true && inputs.environment != 'production' }}
+        run: pnpm db:seed
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SEED_ADMIN_EMAIL: ${{ secrets.SEED_ADMIN_EMAIL }}
+          SEED_ADMIN_PASSWORD: ${{ secrets.SEED_ADMIN_PASSWORD }}

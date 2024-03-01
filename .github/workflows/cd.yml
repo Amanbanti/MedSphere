@@ -1,0 +1,87 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: cd-${{ github.ref }}-${{ inputs.environment || 'staging' }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/medsphere
+
+jobs:
+  build-and-push:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service:
+          - api-gateway
+          - patient
+          - doctor
+          - appointment
+          - billing
+          - laboratory
+          - pharmacy
+          - auth
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infrastructure/docker/services/${{ matrix.service }}.Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
+
+  deploy:
+    name: Deploy to ${{ inputs.environment || 'staging' }}
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v4
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install medsphere infrastructure/helm/charts/medsphere \
+            --namespace medsphere \
+            --set global.imageTag=${{ github.sha }} \
+            --set global.environment=${{ inputs.environment || 'staging' }} \
+            --wait --timeout 10m
+
+      - name: Verify rollout
+        run: |
+          kubectl rollout status deployment/api-gateway -n medsphere --timeout=300s
+          kubectl get pods -n medsphere

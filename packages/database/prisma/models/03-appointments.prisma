@@ -1,0 +1,999 @@
+// Auto-generated: 03-appointments.prisma
+// Regenerate: node tools/codegen/generate_clinical_fragments.mjs
+
+enum AppointmentStatus { SCHEDULED CONFIRMED CHECKED_IN IN_PROGRESS COMPLETED CANCELLED NO_SHOW RESCHEDULED }
+enum AppointmentPriority { ROUTINE URGENT EMERGENT STAT }
+enum QueueStatus { WAITING CALLED IN_SERVICE COMPLETED SKIPPED CANCELLED }
+enum ReminderChannel { SMS EMAIL PUSH PHONE IN_APP }
+
+model Appointment {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointments")
+}
+
+model AppointmentType {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_types")
+}
+
+model AppointmentStatusHistory {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_status_histories")
+}
+
+model AppointmentSlot {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_slots")
+}
+
+model ProviderAvailability {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("provider_availabilities")
+}
+
+model ProviderAvailabilityException {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("provider_availability_exceptions")
+}
+
+model AppointmentQueue {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_queues")
+}
+
+model QueueEntry {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("queue_entries")
+}
+
+model AppointmentReminder {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_reminders")
+}
+
+model AppointmentReminderDelivery {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_reminder_deliveries")
+}
+
+model AppointmentCheckIn {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_check_ins")
+}
+
+model AppointmentCheckOut {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_check_outs")
+}
+
+model AppointmentCancellation {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_cancellations")
+}
+
+model AppointmentReschedule {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_reschedules")
+}
+
+model AppointmentResource {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_resources")
+}
+
+model AppointmentRoom {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_rooms")
+}
+
+model AppointmentEquipment {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_equipments")
+}
+
+model WaitlistEntry {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("waitlist_entries")
+}
+
+model AppointmentTemplate {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_templates")
+}
+
+model RecurringAppointment {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("recurring_appointments")
+}
+
+model AppointmentNote {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_notes")
+}
+
+model AppointmentAttachment {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_attachments")
+}
+
+model AppointmentBillingLink {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_billing_links")
+}
+
+model AppointmentTelemedicineLink {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_telemedicine_links")
+}
+
+model AppointmentSurvey {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_surveys")
+}
+
+model AppointmentSurveyResponse {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_survey_responses")
+}
+
+model AppointmentNoShow {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_no_shows")
+}
+
+model AppointmentOverbooking {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_overbookings")
+}
+
+model AppointmentPriorityRule {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_priority_rules")
+}
+
+model AppointmentReferralLink {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_referral_links")
+}
+
+model AppointmentWaitTimeMetric {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_wait_time_metrics")
+}
+
+model AppointmentResourceBooking {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  patientId String @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  providerId String? @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  code String?
+  name String?
+  title String?
+  description String?
+  status String
+  notes String?
+  amount Decimal? @map("amount") @db.Decimal(14, 4)
+  quantity Int? @map("quantity")
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
+  effectiveDate DateTime? @map("effective_date") @db.Date
+  metadata Json @map("metadata") @default("{}")
+  payload Json @map("payload") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([patientId])
+  @@index([providerId])
+  @@map("appointment_resource_bookings")
+}

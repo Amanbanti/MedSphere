@@ -1,0 +1,5375 @@
+openapi: 3.1.0
+info:
+  title: MedSphere Billing API
+  version: 1.0.0
+  description: |
+    MedSphere enterprise healthcare API specification (synthetic development artifact).
+    Covers billing domain operations with RBAC, audit, and multi-tenant scoping.
+  contact:
+    name: MedSphere Platform Engineering
+    email: api@medsphere.internal
+  license:
+    name: Proprietary
+servers:
+  - url: https://api.medsphere.internal/billing/v1
+    description: Production
+  - url: https://api.staging.medsphere.internal/billing/v1
+    description: Staging
+  - url: http://localhost:8080/billing/v1
+    description: Local gateway
+tags:
+  - name: Billing
+    description: MedSphere Billing API operations
+paths:
+  /billing/v1/vitals:
+    get:
+      operationId: listvitals
+      tags: [Billing]
+      summary: List vitals
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createVitals
+      tags: [Billing]
+      summary: Create vital
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsResponse'
+  /billing/v1/vitals/{id}:
+    get:
+      operationId: getVitalsById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsResponse'
+    patch:
+      operationId: updateVitals
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteVitals
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/prescriptions:
+    get:
+      operationId: listprescriptions
+      tags: [Billing]
+      summary: List prescriptions
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionsListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createPrescriptions
+      tags: [Billing]
+      summary: Create prescription
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionsCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionsResponse'
+  /billing/v1/prescriptions/{id}:
+    get:
+      operationId: getPrescriptionsById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionsResponse'
+    patch:
+      operationId: updatePrescriptions
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionsUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deletePrescriptions
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/claims:
+    get:
+      operationId: listclaims
+      tags: [Billing]
+      summary: List claims
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimsListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createClaims
+      tags: [Billing]
+      summary: Create claim
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimsCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimsResponse'
+  /billing/v1/claims/{id}:
+    get:
+      operationId: getClaimsById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimsResponse'
+    patch:
+      operationId: updateClaims
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimsUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteClaims
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/allergies:
+    get:
+      operationId: listallergies
+      tags: [Billing]
+      summary: List allergies
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllergiesListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createAllergies
+      tags: [Billing]
+      summary: Create allergie
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/AllergiesCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllergiesResponse'
+  /billing/v1/allergies/{id}:
+    get:
+      operationId: getAllergiesById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllergiesResponse'
+    patch:
+      operationId: updateAllergies
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/AllergiesUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteAllergies
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/medications:
+    get:
+      operationId: listmedications
+      tags: [Billing]
+      summary: List medications
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationsListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createMedications
+      tags: [Billing]
+      summary: Create medication
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationsCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationsResponse'
+  /billing/v1/medications/{id}:
+    get:
+      operationId: getMedicationsById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationsResponse'
+    patch:
+      operationId: updateMedications
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationsUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteMedications
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/providers:
+    get:
+      operationId: listproviders
+      tags: [Billing]
+      summary: List providers
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createProviders
+      tags: [Billing]
+      summary: Create provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersResponse'
+  /billing/v1/providers/{id}:
+    get:
+      operationId: getProvidersById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersResponse'
+    patch:
+      operationId: updateProviders
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteProviders
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/patients:
+    get:
+      operationId: listpatients
+      tags: [Billing]
+      summary: List patients
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientsListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createPatients
+      tags: [Billing]
+      summary: Create patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/PatientsCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientsResponse'
+  /billing/v1/patients/{id}:
+    get:
+      operationId: getPatientsById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientsResponse'
+    patch:
+      operationId: updatePatients
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/PatientsUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deletePatients
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/procedures:
+    get:
+      operationId: listprocedures
+      tags: [Billing]
+      summary: List procedures
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProceduresListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createProcedures
+      tags: [Billing]
+      summary: Create procedure
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ProceduresCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProceduresResponse'
+  /billing/v1/procedures/{id}:
+    get:
+      operationId: getProceduresById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProceduresResponse'
+    patch:
+      operationId: updateProcedures
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ProceduresUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteProcedures
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/orders:
+    get:
+      operationId: listorders
+      tags: [Billing]
+      summary: List orders
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createOrders
+      tags: [Billing]
+      summary: Create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersResponse'
+  /billing/v1/orders/{id}:
+    get:
+      operationId: getOrdersById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersResponse'
+    patch:
+      operationId: updateOrders
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteOrders
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/results:
+    get:
+      operationId: listresults
+      tags: [Billing]
+      summary: List results
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createResults
+      tags: [Billing]
+      summary: Create result
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsResponse'
+  /billing/v1/results/{id}:
+    get:
+      operationId: getResultsById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsResponse'
+    patch:
+      operationId: updateResults
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteResults
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/invoices:
+    get:
+      operationId: listinvoices
+      tags: [Billing]
+      summary: List invoices
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicesListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createInvoices
+      tags: [Billing]
+      summary: Create invoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicesCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicesResponse'
+  /billing/v1/invoices/{id}:
+    get:
+      operationId: getInvoicesById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicesResponse'
+    patch:
+      operationId: updateInvoices
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicesUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteInvoices
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+  /billing/v1/consents:
+    get:
+      operationId: listconsents
+      tags: [Billing]
+      summary: List consents
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+        - $ref: "#/components/parameters/OrganizationIdHeader"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentsListResponse'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createConsents
+      tags: [Billing]
+      summary: Create consent
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentsCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentsResponse'
+  /billing/v1/consents/{id}:
+    get:
+      operationId: getConsentsById
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '200':
+          description: Resource detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentsResponse'
+    patch:
+      operationId: updateConsents
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentsUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      operationId: deleteConsents
+      tags: [Billing]
+      parameters:
+        - $ref: "#/components/parameters/ResourceIdParam"
+      responses:
+        '204':
+          description: Deleted
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    mTLS:
+      type: mutualTLS
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSizeParam:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    OrganizationIdHeader:
+      name: X-Organization-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ResourceIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+  schemas:
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrevious:
+          type: boolean
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        traceId:
+          type: string
+          format: uuid
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            fieldErrors:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+    PatientsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PatientsResponseNested'
+    PatientsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PatientsCreateRequestNested'
+    PatientsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PatientsUpdateRequestNested'
+    PatientsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PatientsListResponseNested'
+    PatientsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatientsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    PatientsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    EncountersResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/EncountersResponseNested'
+    EncountersCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/EncountersCreateRequestNested'
+    EncountersUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/EncountersUpdateRequestNested'
+    EncountersListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/EncountersListResponseNested'
+    EncountersListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EncountersResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    EncountersResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    OrdersResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/OrdersResponseNested'
+    OrdersCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/OrdersCreateRequestNested'
+    OrdersUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/OrdersUpdateRequestNested'
+    OrdersListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/OrdersListResponseNested'
+    OrdersListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrdersResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    OrdersResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    ResultsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ResultsResponseNested'
+    ResultsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ResultsCreateRequestNested'
+    ResultsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ResultsUpdateRequestNested'
+    ResultsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ResultsListResponseNested'
+    ResultsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ResultsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    PrescriptionsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PrescriptionsResponseNested'
+    PrescriptionsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PrescriptionsCreateRequestNested'
+    PrescriptionsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PrescriptionsUpdateRequestNested'
+    PrescriptionsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/PrescriptionsListResponseNested'
+    PrescriptionsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrescriptionsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    PrescriptionsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    ClaimsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ClaimsResponseNested'
+    ClaimsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ClaimsCreateRequestNested'
+    ClaimsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ClaimsUpdateRequestNested'
+    ClaimsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ClaimsListResponseNested'
+    ClaimsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClaimsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ClaimsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    InvoicesResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/InvoicesResponseNested'
+    InvoicesCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/InvoicesCreateRequestNested'
+    InvoicesUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/InvoicesUpdateRequestNested'
+    InvoicesListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/InvoicesListResponseNested'
+    InvoicesListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoicesResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    InvoicesResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    AppointmentsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AppointmentsResponseNested'
+    AppointmentsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AppointmentsCreateRequestNested'
+    AppointmentsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AppointmentsUpdateRequestNested'
+    AppointmentsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AppointmentsListResponseNested'
+    AppointmentsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppointmentsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    AppointmentsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    ProvidersResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProvidersResponseNested'
+    ProvidersCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProvidersCreateRequestNested'
+    ProvidersUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProvidersUpdateRequestNested'
+    ProvidersListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProvidersListResponseNested'
+    ProvidersListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProvidersResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ProvidersResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    FacilitiesResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/FacilitiesResponseNested'
+    FacilitiesCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/FacilitiesCreateRequestNested'
+    FacilitiesUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/FacilitiesUpdateRequestNested'
+    FacilitiesListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/FacilitiesListResponseNested'
+    FacilitiesListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FacilitiesResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    FacilitiesResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    DocumentsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/DocumentsResponseNested'
+    DocumentsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/DocumentsCreateRequestNested'
+    DocumentsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/DocumentsUpdateRequestNested'
+    DocumentsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/DocumentsListResponseNested'
+    DocumentsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    DocumentsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    AllergiesResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AllergiesResponseNested'
+    AllergiesCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AllergiesCreateRequestNested'
+    AllergiesUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AllergiesUpdateRequestNested'
+    AllergiesListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/AllergiesListResponseNested'
+    AllergiesListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllergiesResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    AllergiesResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    MedicationsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/MedicationsResponseNested'
+    MedicationsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/MedicationsCreateRequestNested'
+    MedicationsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/MedicationsUpdateRequestNested'
+    MedicationsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/MedicationsListResponseNested'
+    MedicationsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    MedicationsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    VitalsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/VitalsResponseNested'
+    VitalsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/VitalsCreateRequestNested'
+    VitalsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/VitalsUpdateRequestNested'
+    VitalsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/VitalsListResponseNested'
+    VitalsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/VitalsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    VitalsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    ProblemsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProblemsResponseNested'
+    ProblemsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProblemsCreateRequestNested'
+    ProblemsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProblemsUpdateRequestNested'
+    ProblemsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProblemsListResponseNested'
+    ProblemsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ProblemsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    ProceduresResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProceduresResponseNested'
+    ProceduresCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProceduresCreateRequestNested'
+    ProceduresUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProceduresUpdateRequestNested'
+    ProceduresListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ProceduresListResponseNested'
+    ProceduresListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProceduresResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ProceduresResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    ImmunizationsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ImmunizationsResponseNested'
+    ImmunizationsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ImmunizationsCreateRequestNested'
+    ImmunizationsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ImmunizationsUpdateRequestNested'
+    ImmunizationsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ImmunizationsListResponseNested'
+    ImmunizationsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImmunizationsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ImmunizationsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    CarePlansResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/CarePlansResponseNested'
+    CarePlansCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/CarePlansCreateRequestNested'
+    CarePlansUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/CarePlansUpdateRequestNested'
+    CarePlansListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/CarePlansListResponseNested'
+    CarePlansListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarePlansResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    CarePlansResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+    ConsentsResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ConsentsResponseNested'
+    ConsentsCreateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ConsentsCreateRequestNested'
+    ConsentsUpdateRequest:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ConsentsUpdateRequestNested'
+    ConsentsListResponse:
+      type: object
+      required:
+        - id
+        - organizationId
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        organizationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        facilityId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled, entered_in_error]
+        code:
+          type: string
+          example: "code value"
+        displayName:
+          type: string
+          example: "displayName value"
+        description:
+          type: string
+          example: "description value"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          example: "createdBy value"
+        updatedBy:
+          type: string
+          example: "updatedBy value"
+        version:
+          type: string
+          example: "version value"
+        metadata:
+          type: object
+          additionalProperties: true
+        nested:
+          $ref: '#/components/schemas/ConsentsListResponseNested'
+    ConsentsListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsentsResponse'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    ConsentsResponseNested:
+      type: object
+      properties:
+        detail:
+          type: string
+security:
+  - bearerAuth: []

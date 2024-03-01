@@ -1,0 +1,50 @@
+{
+  "name": "medsphere",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MedSphere — Enterprise Hospital Information System (HIS), EMR & EHR Platform",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "test:cov": "turbo run test:cov",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "clean": "turbo run clean && rimraf node_modules",
+    "db:generate": "pnpm --filter @medsphere/database generate",
+    "db:migrate": "pnpm --filter @medsphere/database migrate",
+    "db:seed": "pnpm --filter @medsphere/database seed",
+    "db:studio": "pnpm --filter @medsphere/database studio",
+    "docker:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}

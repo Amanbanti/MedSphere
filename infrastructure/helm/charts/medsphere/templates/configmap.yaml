@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: medsphere-global-config
+data:
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_FORMAT: json
+  CORS_ORIGINS: "https://{{ .Values.global.domain }}"
+  FEATURE_FLAGS_ENABLED: "true"

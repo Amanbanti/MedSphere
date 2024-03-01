@@ -1,0 +1,271 @@
+global:
+  imageRegistry: ghcr.io/medsphere
+  imageTag: "1.0.0"
+  environment: production
+  domain: medsphere.health
+
+postgresql:
+  enabled: true
+  auth:
+    database: medsphere
+    username: medsphere
+  primary:
+    persistence:
+      size: 100Gi
+
+redis:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: true
+
+kafka:
+  enabled: true
+  replicaCount: 3
+  persistence:
+    size: 50Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: api.medsphere.health
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api-gateway
+    - host: admin.medsphere.health
+      paths:
+        - path: /
+          pathType: Prefix
+          service: admin-portal
+
+services:
+  api-gateway:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  auth:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  patient:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  doctor:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  appointment:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  medical-record:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  prescription:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  laboratory:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  radiology:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  imaging:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  pharmacy:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  billing:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  insurance:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  payment:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  notification:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  video-consultation:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  analytics:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  search:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  audit:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  queue:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  worker:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+monitoring:
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+  alertmanager:
+    enabled: true
+
+networkPolicies:
+  enabled: true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
