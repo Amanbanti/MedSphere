@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { gatewayConfigFactory } from '../config/gateway.config';
 import { validateEnv } from '../config/env.validation';
+import { createSecurityHeadersMiddleware } from '@medsphere/auth-sdk';
 import { CorrelationIdMiddleware } from '../middleware/correlation-id.middleware';
 import { RequestLoggingMiddleware } from '../middleware/request-logging.middleware';
 import { RateLimitGuard } from '../guards/rate-limit.guard';
@@ -63,7 +64,11 @@ import { ProxyModule } from '../proxy/proxy.module';
 export class GatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
-      .apply(CorrelationIdMiddleware, RequestLoggingMiddleware)
+      .apply(
+        createSecurityHeadersMiddleware(),
+        CorrelationIdMiddleware,
+        RequestLoggingMiddleware,
+      )
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

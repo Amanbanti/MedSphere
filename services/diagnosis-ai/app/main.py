@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.logging import configure_logging
-from app.routers import diagnosis, drug_interaction, icd10, report, risk, health
+from app.routers import diagnosis, drug_interaction, icd10, report, risk, health, cds, image_classification
 
 
 @asynccontextmanager
@@ -34,3 +34,5 @@ app.include_router(drug_interaction.router, prefix="/api/v1/drug-interactions", 
 app.include_router(risk.router, prefix="/api/v1/risk", tags=["risk"])
 app.include_router(icd10.router, prefix="/api/v1/icd10", tags=["icd10"])
 app.include_router(report.router, prefix="/api/v1/reports", tags=["reports"])
+app.include_router(cds.router, prefix="/api/v1/cds", tags=["cds"])
+app.include_router(image_classification.router, prefix="/api/v1/imaging", tags=["imaging"])

@@ -1,0 +1,63 @@
+# Dependencies
+node_modules
+**/node_modules
+.pnpm-store
+
+# Build outputs
+dist
+**/dist
+.next
+**/.next
+out
+coverage
+**/.turbo
+.turbo
+
+# Python
+__pycache__
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.venv
+venv
+
+# IDE & OS
+.git
+.github
+.idea
+.vscode
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.log
+npm-debug.log*
+pnpm-debug.log*
+tmp
+temp
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+**/*.pem
+**/*.key
+**/secrets/*.yaml
+!**/secrets/*.example.yaml
+
+# Tests & docs (not needed in runtime images)
+tests
+docs
+**/*.md
+!README.md
+
+# Infrastructure dev-only
+infrastructure/terraform
+infrastructure/docker/monitoring
+*.tfstate*
+
+# Git hooks
+.husky

@@ -1,24 +1,34 @@
-// Auto-generated: 02-doctor-staff.prisma
-// Regenerate: node tools/codegen/generate_clinical_fragments.mjs
+// Production clinical domain: 02-doctor-staff.prisma
+// Regenerate: node tools/codegen/generate_production_phase234.mjs
 
+enum ProviderStatus { ACTIVE INACTIVE SUSPENDED PENDING_CREDENTIALING ON_LEAVE }
 enum CredentialStatus { ACTIVE EXPIRED REVOKED PENDING_VERIFICATION }
-enum ScheduleBlockType { AVAILABLE UNAVAILABLE BREAK ON_CALL SURGERY ADMIN }
+enum ScheduleBlockType { AVAILABLE UNAVAILABLE BREAK ON_CALL SURGERY ADMIN VACATION }
 enum LeaveType { VACATION SICK PERSONAL MATERNITY PATERNITY UNPAID OTHER }
+enum LicenseType { MEDICAL NURSING PHARMACY DEA STATE CONTROLLED_SUBSTANCE OTHER }
+enum PrivilegeStatus { ACTIVE SUSPENDED PENDING REVOKED }
 
 model DoctorProfile {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
   userId String @map("user_id") @db.Uuid
   facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  npiNumber String? @map("npi_number") @db.VarChar(10)
+  deaNumber String? @map("dea_number") @db.VarChar(20)
+  prefix String? @db.VarChar(20)
+  suffix String? @db.VarChar(20)
+  displayName String @map("display_name") @db.VarChar(200)
+  bio String? @map("bio") @db.Text
+  status ProviderStatus @default(ACTIVE)
+  primarySpecialty String? @map("primary_specialty") @db.VarChar(100)
+  hireDate DateTime? @map("hire_date") @db.Date
+  terminationDate DateTime? @map("termination_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
@@ -31,15 +41,17 @@ model NurseProfile {
   organizationId String @map("organization_id") @db.Uuid
   userId String @map("user_id") @db.Uuid
   facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  licenseNumber String? @map("license_number") @db.VarChar(50)
+  displayName String @map("display_name") @db.VarChar(200)
+  status ProviderStatus @default(ACTIVE)
+  credential String? @db.VarChar(20)
+  hireDate DateTime? @map("hire_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
@@ -52,15 +64,17 @@ model StaffProfile {
   organizationId String @map("organization_id") @db.Uuid
   userId String @map("user_id") @db.Uuid
   facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  departmentId String? @map("department_id") @db.Uuid
+  employeeId String? @map("employee_id") @db.VarChar(50)
+  jobTitle String? @map("job_title") @db.VarChar(100)
+  status ProviderStatus @default(ACTIVE)
+  hireDate DateTime? @map("hire_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
@@ -71,713 +85,805 @@ model StaffProfile {
 model Specialty {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String @db.VarChar(20)
+  name String @db.VarChar(200)
+  taxonomyCode String? @map("taxonomy_code") @db.VarChar(20)
+  description String? @map("description") @db.Text
+  isActive Boolean @map("is_active") @default(true)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
   @@map("specialties")
 }
 
 model DoctorSpecialty {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  doctorProfileId String @map("doctor_profile_id") @db.Uuid
+  specialtyId String @map("specialty_id") @db.Uuid
+  isPrimary Boolean @map("is_primary") @default(false)
+  certifiedDate DateTime? @map("certified_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([doctorProfileId])
   @@map("doctor_specialties")
 }
 
 model Credential {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
+  credentialType String @map("credential_type") @db.VarChar(50)
+  credentialName String @map("credential_name") @db.VarChar(200)
+  issuingBody String? @map("issuing_body") @db.VarChar(200)
+  status CredentialStatus @default(ACTIVE)
+  issueDate DateTime? @map("issue_date") @db.Date
   expirationDate DateTime? @map("expiration_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
   @@map("credentials")
 }
 
 model DoctorCredential {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  doctorProfileId String @map("doctor_profile_id") @db.Uuid
+  credentialId String @map("credential_id") @db.Uuid
+  status CredentialStatus @default(ACTIVE)
+  verifiedDate DateTime? @map("verified_date") @db.Date
+  verifiedById String? @map("verified_by_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([doctorProfileId])
   @@map("doctor_credentials")
 }
 
 model License {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
+  licenseType LicenseType @default(MEDICAL)
+  licenseNumber String @map("license_number") @db.VarChar(50)
+  issuingState String? @map("issuing_state") @db.VarChar(10)
+  issuingCountry String? @map("issuing_country") @db.VarChar(2)
+  status CredentialStatus @default(ACTIVE)
+  issueDate DateTime? @map("issue_date") @db.Date
   expirationDate DateTime? @map("expiration_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
   @@map("licenses")
 }
 
 model StaffLicense {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  licenseId String @map("license_id") @db.Uuid
+  status CredentialStatus @default(ACTIVE)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_licenses")
 }
 
 model StaffSchedule {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
+  staffProfileId String @map("staff_profile_id") @db.Uuid
   facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  dayOfWeek Int
+  startTime String @map("start_time") @db.VarChar(5)
+  endTime String @map("end_time") @db.VarChar(5)
+  timezone String @db.VarChar(64)
+  effectiveFrom DateTime? @map("effective_from") @db.Date
+  effectiveTo DateTime? @map("effective_to") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_schedules")
 }
 
 model StaffScheduleBlock {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  blockType ScheduleBlockType @default(AVAILABLE)
+  startAt DateTime @map("start_at") @db.Timestamptz(6)
+  endAt DateTime @map("end_at") @db.Timestamptz(6)
+  reason String? @map("reason") @db.Text
   facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_schedule_blocks")
 }
 
 model StaffAvailability {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
+  staffProfileId String @map("staff_profile_id") @db.Uuid
   facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  slotDurationMinutes Int @default(15)
+  maxPatientsPerSlot Int @default(1)
+  acceptsNewPatients Boolean @map("accepts_new_patients") @default(true)
+  acceptsTelehealth Boolean @map("accepts_telehealth") @default(false)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_availabilities")
+}
+
+model ProviderAvailability {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  providerId String @map("provider_id") @db.Uuid
+  facilityId String? @map("facility_id") @db.Uuid
+  dayOfWeek Int
+  startTime String @map("start_time") @db.VarChar(5)
+  endTime String @map("end_time") @db.VarChar(5)
+  slotDurationMinutes Int @default(15)
+  effectiveFrom DateTime? @map("effective_from") @db.Date
+  effectiveTo DateTime? @map("effective_to") @db.Date
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([providerId])
+  @@map("provider_availabilities")
 }
 
 model StaffLeave {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  leaveType LeaveType @default(VACATION)
+  startDate DateTime @map("start_date") @db.Date
+  endDate DateTime @map("end_date") @db.Date
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_leaves")
 }
 
 model StaffOnCall {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  facilityId String @map("facility_id") @db.Uuid
+  startAt DateTime @map("start_at") @db.Timestamptz(6)
+  endAt DateTime @map("end_at") @db.Timestamptz(6)
+  contactPhone String? @map("contact_phone") @db.VarChar(20)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_on_calls")
 }
 
 model StaffDepartmentAssignment {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  departmentId String @map("department_id") @db.Uuid
+  startDate DateTime @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
+  isPrimary Boolean @map("is_primary") @default(false)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_department_assignments")
-}
-
-model StaffRoleExtension {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@map("staff_role_extensions")
 }
 
 model StaffCertification {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  certificationName String @map("certification_name") @db.VarChar(200)
+  certifyingBody String? @map("certifying_body") @db.VarChar(200)
+  issueDate DateTime? @map("issue_date") @db.Date
   expirationDate DateTime? @map("expiration_date") @db.Date
+  certificateNumber String? @map("certificate_number") @db.VarChar(100)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_certifications")
-}
-
-model StaffTraining {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@map("staff_trainings")
-}
-
-model StaffPerformanceReview {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@map("staff_performance_reviews")
-}
-
-model StaffContact {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@map("staff_contacts")
-}
-
-model StaffEmergencyContact {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@map("staff_emergency_contacts")
-}
-
-model StaffDocument {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@map("staff_documents")
 }
 
 model StaffPrivilege {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  facilityId String @map("facility_id") @db.Uuid
+  privilegeCode String @map("privilege_code") @db.VarChar(50)
+  privilegeName String @map("privilege_name") @db.VarChar(200)
+  status PrivilegeStatus @default(ACTIVE)
+  grantedDate DateTime? @map("granted_date") @db.Date
   expirationDate DateTime? @map("expiration_date") @db.Date
+  grantedById String? @map("granted_by_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_privileges")
 }
 
-model StaffCredentialVerification {
+model StaffAssignment {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  staffProfileId String @map("staff_profile_id") @db.Uuid
+  patientId String? @map("patient_id") @db.Uuid
+  encounterId String? @map("encounter_id") @db.Uuid
+  assignmentType String @map("assignment_type") @db.VarChar(50)
+  assignedAt DateTime @map("assigned_at") @db.Timestamptz(6)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
-  @@map("staff_credential_verifications")
+  @@index([staffProfileId])
+  @@map("staff_assignments")
 }
 
-model ReferringPhysician {
+model Privilege {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String @db.VarChar(50)
+  name String @db.VarChar(200)
+  description String? @map("description") @db.Text
+  category String? @db.VarChar(50)
+  requiresApproval Boolean @map("requires_approval") @default(false)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
-  @@map("referring_physicians")
+  @@map("privileges")
 }
 
 model CareTeam {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  patientId String @map("patient_id") @db.Uuid
+  teamName String @map("team_name") @db.VarChar(200)
+  status String @db.VarChar(30)
+  startDate DateTime? @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
   @@map("care_teams")
 }
 
 model CareTeamProvider {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  careTeamId String @map("care_team_id") @db.Uuid
+  providerId String @map("provider_id") @db.Uuid
+  role CareTeamRole @default(OTHER)
+  startDate DateTime? @map("start_date") @db.Date
+  endDate DateTime? @map("end_date") @db.Date
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([providerId])
   @@map("care_team_providers")
+}
+
+model ReferringPhysician {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@map("referring_physicians")
 }
 
 model ProviderNetwork {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  providerId String? @map("provider_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([providerId])
   @@map("provider_networks")
 }
 
 model ProviderContract {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  providerId String? @map("provider_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([providerId])
   @@map("provider_contracts")
 }
 
 model ProviderRating {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  providerId String? @map("provider_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([providerId])
   @@map("provider_ratings")
 }
 
 model StaffCompetency {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_competencies")
 }
 
 model StaffShiftSwap {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_shift_swaps")
 }
 
 model StaffOvertimeRecord {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_overtime_records")
 }
 
 model StaffBadge {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_badges")
 }
 
 model StaffEquipmentAssignment {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_equipment_assignments")
 }
 
 model StaffRoomAssignment {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_room_assignments")
 }
 
 model StaffNotificationPreference {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationId String @map("organization_id") @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  npiNumber String? @map("npi_number")
-  title String?
-  bio String?
-  status String
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  expirationDate DateTime? @map("expiration_date") @db.Date
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
   version Int @default(1)
   @@index([organizationId])
   @@index([deletedAt])
-  @@index([userId])
+  @@index([staffProfileId])
   @@map("staff_notification_preferences")
+}
+
+model StaffContact {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([staffProfileId])
+  @@map("staff_contacts")
+}
+
+model StaffEmergencyContact {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([staffProfileId])
+  @@map("staff_emergency_contacts")
+}
+
+model StaffDocument {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([staffProfileId])
+  @@map("staff_documents")
+}
+
+model StaffCredentialVerification {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([staffProfileId])
+  @@map("staff_credential_verifications")
+}
+
+model StaffRoleExtension {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([staffProfileId])
+  @@map("staff_role_extensions")
+}
+
+model StaffTraining {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([staffProfileId])
+  @@map("staff_trainings")
+}
+
+model StaffPerformanceReview {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  code String? @db.VarChar(50)
+  name String? @db.VarChar(200)
+  status String @db.VarChar(30)
+  notes String? @map("notes") @db.Text
+  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
+  metadata Json @map("metadata") @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy String? @map("created_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by") @db.Uuid
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  deletedBy String? @map("deleted_by") @db.Uuid
+  version Int @default(1)
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([staffProfileId])
+  @@map("staff_performance_reviews")
 }

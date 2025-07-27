@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { JwtService, JwtAuthGuard } from '@medsphere/auth-sdk';
+import { JwtService, JwtAuthGuard, PermissionsGuard } from '@medsphere/auth-sdk';
 import { createLogger, NestMedSphereLogger } from '@medsphere/logger';
 import { authConfigFactory, type AuthConfig } from '../infrastructure/config/auth.config';
 import { PrismaModule } from '../infrastructure/prisma/prisma.module';
@@ -93,6 +93,7 @@ import { PasswordPolicyService } from '../domain/services/password-policy.domain
     GetProfileUseCase,
     ListSessionsUseCase,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: PermissionsGuard },
     { provide: APP_FILTER, useClass: DomainExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: CorrelationIdInterceptor },
   ],

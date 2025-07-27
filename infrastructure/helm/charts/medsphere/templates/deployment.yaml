@@ -22,6 +22,10 @@ spec:
           image: "{{ $.Values.global.imageRegistry }}/{{ $name }}:{{ $.Values.global.imageTag }}"
           ports:
             - containerPort: 8080
+          envFrom:
+            {{- if $.Values.envFrom }}
+            {{- toYaml $.Values.envFrom | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml $svc.resources | nindent 12 }}
 ---

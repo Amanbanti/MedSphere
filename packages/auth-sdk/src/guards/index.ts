@@ -104,6 +104,15 @@ export class RolesGuard implements CanActivate {
   }
 }
 
+export {
+  CsrfGuard,
+  CSRF_COOKIE_NAME,
+  CSRF_HEADER_NAME,
+  CSRF_PROTECTED_KEY,
+  generateCsrfToken,
+  setCsrfCookie,
+} from './csrf.guard';
+
 @Injectable()
 export class MfaGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}

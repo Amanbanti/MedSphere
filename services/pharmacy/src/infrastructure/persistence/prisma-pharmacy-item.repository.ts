@@ -10,6 +10,7 @@ import { PharmacyItem } from '../../domain/entities/pharmacy-item.entity';
 import type { PharmacyItemRepository } from '../../domain/repositories/pharmacy-item.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { InMemoryPharmacyItemRepository } from './in-memory-pharmacy-item.repository';
+import { OptimisticLockError } from '../../domain/errors/pharmacy.errors';
 
 @Injectable()
 export class PrismaPharmacyItemRepository implements PharmacyItemRepository {
@@ -17,50 +18,88 @@ export class PrismaPharmacyItemRepository implements PharmacyItemRepository {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  private get model() {
+    const client = this.prisma.client as Record<string, {
+      upsert?: Function;
+      findFirst?: Function;
+      findMany?: Function;
+      count?: Function;
+      update?: Function;
+    }>;
+    return client.pharmacyInventory;
+  }
+
   async save(entity: PharmacyItem): Promise<void> {
-    const client = this.prisma.client as Record<string, { upsert?: Function } | undefined>;
-    const model = client.pharmacyInventory;
-    if (!model?.upsert) {
-      return this.fallback.save(entity);
-    }
+    const model = this.model;
+    if (!model?.upsert) return this.fallback.save(entity);
+
     const props = entity.toProps();
+    const { id, organizationId, version, ...rest } = props as Record<string, unknown>;
+
+    if (version && (version as number) > 1) {
+      const existing = await model.findFirst?.({
+        where: { id, organizationId, deletedAt: null },
+      });
+      if (existing && (existing as { version: number }).version !== (version as number) - 1) {
+        throw new OptimisticLockError(id as UUID, (existing as { version: number }).version);
+      }
+    }
+
     await model.upsert({
-      where: { id: props.id },
-      create: props,
-      update: props,
+      where: { id: id as string },
+      create: { ...props, deletedAt: null },
+      update: { ...rest, version: (version as number) ?? 1 },
     });
   }
 
   async findById(organizationId: UUID, id: UUID): Promise<PharmacyItem | null> {
-    const client = this.prisma.client as Record<string, { findFirst?: Function } | undefined>;
-    const model = client.pharmacyInventory;
-    if (!model?.findFirst) {
-      return this.fallback.findById(organizationId, id);
-    }
-    const row = await model.findFirst({ where: { id, organizationId, deletedAt: null } });
+    const model = this.model;
+    if (!model?.findFirst) return this.fallback.findById(organizationId, id);
+
+    const row = await model.findFirst({
+      where: { id, organizationId, deletedAt: null },
+    });
     return row ? PharmacyItem.create(row as Parameters<typeof PharmacyItem.create>[0]) : null;
   }
 
   async list(organizationId: UUID, query: ListQuery = {}): Promise<PaginatedResult<PharmacyItem>> {
-    const client = this.prisma.client as Record<string, { findMany?: Function; count?: Function } | undefined>;
-    const model = client.pharmacyInventory;
-    if (!model?.findMany || !model?.count) {
-      return this.fallback.list(organizationId, query);
-    }
+    const model = this.model;
+    if (!model?.findMany || !model?.count) return this.fallback.list(organizationId, query);
+
     const normalized = normalizeListQuery(query);
-    const where = { organizationId, deletedAt: null };
+    const where: Record<string, unknown> = { organizationId, deletedAt: null };
+
+    if (query.filter?.status) where.status = query.filter.status;
+    if (query.filter?.patientId) where.patientId = query.filter.patientId;
+    if (query.filter?.providerId) where.providerId = query.filter.providerId;
+
+    const orderBy = query.sort?.field
+      ? { [query.sort.field]: query.sort.direction ?? 'desc' }
+      : { createdAt: 'desc' };
+
     const [rows, totalItems] = await Promise.all([
       model.findMany({
         where,
         skip: (normalized.page - 1) * normalized.pageSize,
         take: normalized.pageSize,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
       }),
       model.count({ where }),
     ]);
+
     return {
       items: rows.map((row: Parameters<typeof PharmacyItem.create>[0]) => PharmacyItem.create(row)),
       meta: createPaginationMeta(normalized.page, normalized.pageSize, totalItems),
     };
+  }
+
+  async softDelete(organizationId: UUID, id: UUID, deletedBy: UUID): Promise<void> {
+    const model = this.model;
+    if (!model?.update) return this.fallback.softDelete?.(organizationId, id, deletedBy);
+
+    await model.update({
+      where: { id },
+      data: { deletedAt: new Date(), deletedBy, version: { increment: 1 } },
+    });
   }
 }

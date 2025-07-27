@@ -6,17 +6,17 @@ import { PrismaPatientRepository } from '../infrastructure/persistence/prisma-pa
 import { PrismaService } from '../infrastructure/prisma/prisma.service';
 import { PatientOrchestrator } from '../application/services/patient-orchestrator.service';
 import { PatientEventPublisher } from '../infrastructure/messaging/patient-event.publisher';
-import { InMemoryPatientAllergyRepository } from '../infrastructure/persistence/in-memory-patient-allergy.repository';
-import { InMemoryPatientVitalRepository } from '../infrastructure/persistence/in-memory-patient-vital.repository';
+import { PatientKafkaPublisher } from '../infrastructure/messaging/patient-kafka.publisher';
+import { InMemoryPatientCacheAdapter } from '../infrastructure/cache/in-memory-patient.cache';
 import {
   RegisterPatientUseCase,
-    UpdatePatientDemographicsUseCase,
-    RecordPatientAllergyUseCase,
-    AddPatientVitalsUseCase,
-    GetPatientProfileUseCase,
-    ListPatientsUseCase,
-    DeactivatePatientUseCase,
-    MergePatientRecordsUseCase,
+  UpdatePatientDemographicsUseCase,
+  RecordPatientAllergyUseCase,
+  AddPatientVitalsUseCase,
+  GetPatientProfileUseCase,
+  ListPatientsUseCase,
+  DeactivatePatientUseCase,
+  MergePatientRecordsUseCase,
 } from '../application/use-cases';
 
 @Module({
@@ -26,8 +26,8 @@ import {
     InMemoryPatientRepository,
     PatientOrchestrator,
     PatientEventPublisher,
-    { provide: PATIENT_ALLERGY_REPOSITORY, useClass: InMemoryPatientAllergyRepository },
-    { provide: PATIENT_VITAL_REPOSITORY, useClass: InMemoryPatientVitalRepository },
+    PatientKafkaPublisher,
+    InMemoryPatientCacheAdapter,
     {
       provide: PATIENT_REPOSITORY,
       useClass: process.env.USE_IN_MEMORY_REPO === 'true'

@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { CorrelationId, CurrentUser } from '@medsphere/auth-sdk';
 import { successBody, type JwtAccessPayload, type ListQuery, type UUID } from '@medsphere/shared';
 import { BookAppointmentUseCase } from '../../application/use-cases/book-appointment.use-case';
@@ -8,6 +9,90 @@ import { CheckInAppointmentUseCase } from '../../application/use-cases/check-in-
 import { GetAppointmentUseCase } from '../../application/use-cases/get-appointment.use-case';
 import { ListAppointmentsByPatientUseCase } from '../../application/use-cases/list-appointments-by-patient.use-case';
 import { ListAppointmentsByDoctorUseCase } from '../../application/use-cases/list-appointments-by-doctor.use-case';
+
+export class BookAppointmentDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  doctorId: string;
+
+  @IsString()
+  facilityId: string;
+
+  @IsString()
+  scheduledAt: string;
+
+  @IsNumber()
+  durationMinutes: number;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class RescheduleAppointmentDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  doctorId: string;
+
+  @IsString()
+  facilityId: string;
+
+  @IsString()
+  scheduledAt: string;
+
+  @IsNumber()
+  durationMinutes: number;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class CancelAppointmentDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  doctorId: string;
+
+  @IsString()
+  facilityId: string;
+
+  @IsString()
+  scheduledAt: string;
+
+  @IsNumber()
+  durationMinutes: number;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class CheckInAppointmentDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  doctorId: string;
+
+  @IsString()
+  facilityId: string;
+
+  @IsString()
+  scheduledAt: string;
+
+  @IsNumber()
+  durationMinutes: number;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
 
 @Controller('appointments')
 export class AppointmentController {
@@ -26,8 +111,8 @@ export class AppointmentController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: BookAppointmentDto,
   ) {
     const result = await this.bookAppointmentUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -39,7 +124,6 @@ export class AppointmentController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -49,8 +133,8 @@ export class AppointmentController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: RescheduleAppointmentDto,
   ) {
     const result = await this.rescheduleAppointmentUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -62,7 +146,6 @@ export class AppointmentController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -72,8 +155,8 @@ export class AppointmentController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: CancelAppointmentDto,
   ) {
     const result = await this.cancelAppointmentUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -85,7 +168,6 @@ export class AppointmentController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -95,8 +177,8 @@ export class AppointmentController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: CheckInAppointmentDto,
   ) {
     const result = await this.checkInAppointmentUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -108,7 +190,6 @@ export class AppointmentController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -118,8 +199,8 @@ export class AppointmentController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.getAppointmentUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -129,9 +210,8 @@ export class AppointmentController {
       
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }
@@ -141,8 +221,8 @@ export class AppointmentController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('patientId') patientId: string,
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.listAppointmentsByPatientUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -152,9 +232,8 @@ export class AppointmentController {
       patientId: patientId as UUID,
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }
@@ -164,8 +243,8 @@ export class AppointmentController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('doctorId') doctorId: string,
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.listAppointmentsByDoctorUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -175,9 +254,8 @@ export class AppointmentController {
       
       doctorId: doctorId as UUID,
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }

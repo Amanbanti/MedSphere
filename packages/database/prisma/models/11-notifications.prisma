@@ -1,836 +1,279 @@
-// Auto-generated: 11-notifications.prisma
-// Regenerate: node tools/codegen/generate_clinical_fragments.mjs
+// Phase 5 — Notifications & messaging domain (production schema)
 
-enum NotificationStatus { PENDING QUEUED SENT DELIVERED FAILED BOUNCED READ CANCELLED }
-enum NotificationChannelType { EMAIL SMS PUSH IN_APP WEBHOOK VOICE }
+enum NotificationStatus {
+  PENDING
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+  READ
+  CANCELLED
+}
+
+enum NotificationChannelType {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+  WEBHOOK
+  WHATSAPP
+  VOICE
+}
+
+enum DeliveryAttemptStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCEEDED
+  FAILED
+  RETRY_SCHEDULED
+}
+
+enum ReminderJobStatus {
+  SCHEDULED
+  PROCESSING
+  SENT
+  FAILED
+  CANCELLED
+}
 
 model NotificationTemplate {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                  @map("organization_id") @db.Uuid
+  code           String                  @db.VarChar(100)
+  name           String                  @db.VarChar(200)
+  channel        NotificationChannelType
+  subject        String?                 @db.VarChar(500)
+  bodyTemplate   String                  @map("body_template") @db.Text
+  htmlTemplate   String?                 @map("html_template") @db.Text
+  locale         String                  @default("en") @db.VarChar(10)
+  variables      String[]                @default([])
+  isActive       Boolean                 @default(true) @map("is_active")
+  metadata       Json                    @default("{}")
+  createdAt      DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdBy      String?                 @map("created_by") @db.Uuid
+  updatedAt      DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedBy      String?                 @map("updated_by") @db.Uuid
+  deletedAt      DateTime?               @map("deleted_at") @db.Timestamptz(6)
+  version        Int                     @default(1)
+
+  outboxEntries NotificationOutbox[]
+  reminderJobs  AppointmentReminderJob[]
+
+  @@unique([organizationId, code, locale])
+  @@index([organizationId, isActive])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
   @@map("notification_templates")
 }
 
-model NotificationTemplateVersion {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_template_versions")
-}
-
-model NotificationChannel {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_channels")
-}
-
 model NotificationPreference {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                  @map("organization_id") @db.Uuid
+  userId         String                  @map("user_id") @db.Uuid
+  channel        NotificationChannelType
+  category       String                  @db.VarChar(100)
+  isEnabled      Boolean                 @default(true) @map("is_enabled")
+  quietHoursStart String?                @map("quiet_hours_start") @db.VarChar(5)
+  quietHoursEnd  String?                 @map("quiet_hours_end") @db.VarChar(5)
+  timezone       String                  @default("UTC") @db.VarChar(64)
+  metadata       Json                    @default("{}")
+  createdAt      DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?               @map("deleted_at") @db.Timestamptz(6)
+  version        Int                     @default(1)
+
+  @@unique([organizationId, userId, channel, category])
+  @@index([organizationId, userId])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
   @@map("notification_preferences")
 }
 
-model NotificationSubscription {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+model NotificationOutbox {
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                  @map("organization_id") @db.Uuid
+  templateId     String?                 @map("template_id") @db.Uuid
+  recipientId    String                  @map("recipient_id") @db.Uuid
+  recipientType  String                  @default("USER") @map("recipient_type") @db.VarChar(20)
+  channel        NotificationChannelType
+  status         NotificationStatus      @default(PENDING)
+  priority       Int                     @default(5)
+  subject        String?                 @db.VarChar(500)
+  body           String                  @db.Text
+  variables      Json                    @default("{}")
+  scheduledAt    DateTime?               @map("scheduled_at") @db.Timestamptz(6)
+  sentAt         DateTime?               @map("sent_at") @db.Timestamptz(6)
+  idempotencyKey String?                 @map("idempotency_key") @db.VarChar(200)
+  retryCount     Int                     @default(0) @map("retry_count")
+  maxRetries     Int                     @default(5) @map("max_retries")
+  nextRetryAt    DateTime?               @map("next_retry_at") @db.Timestamptz(6)
+  correlationId  String?                 @map("correlation_id") @db.Uuid
+  metadata       Json                    @default("{}")
+  createdAt      DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?               @map("deleted_at") @db.Timestamptz(6)
+  version        Int                     @default(1)
+
+  template         NotificationTemplate? @relation(fields: [templateId], references: [id])
+  deliveryAttempts DeliveryAttempt[]
+  emailMessages    EmailMessage[]
+  smsMessages      SmsMessage[]
+  whatsAppMessages WhatsAppMessage[]
+
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status])
+  @@index([organizationId, channel])
+  @@index([status, nextRetryAt])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_subscriptions")
+  @@map("notification_outbox")
 }
 
-model NotificationDelivery {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_deliveries")
+model DeliveryAttempt {
+  id             String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                @map("organization_id") @db.Uuid
+  outboxId       String                @map("outbox_id") @db.Uuid
+  attemptNumber  Int                   @map("attempt_number")
+  status         DeliveryAttemptStatus @default(PENDING)
+  providerRef    String?               @map("provider_ref") @db.VarChar(200)
+  errorCode      String?               @map("error_code") @db.VarChar(50)
+  errorMessage   String?               @map("error_message") @db.VarChar(1000)
+  attemptedAt    DateTime              @default(now()) @map("attempted_at") @db.Timestamptz(6)
+  completedAt    DateTime?             @map("completed_at") @db.Timestamptz(6)
+  backoffSeconds Int?                  @map("backoff_seconds")
+  metadata       Json                  @default("{}")
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  version        Int                   @default(1)
+
+  outbox NotificationOutbox @relation(fields: [outboxId], references: [id])
+
+  @@index([organizationId, outboxId])
+  @@index([outboxId, attemptNumber])
+  @@map("delivery_attempts")
 }
 
-model NotificationDeliveryAttempt {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+model EmailMessage {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String             @map("organization_id") @db.Uuid
+  outboxId       String             @map("outbox_id") @db.Uuid
+  toAddress      String             @map("to_address") @db.VarChar(320)
+  fromAddress    String             @map("from_address") @db.VarChar(320)
+  subject        String             @db.VarChar(500)
+  htmlBody       String?            @map("html_body") @db.Text
+  textBody       String             @map("text_body") @db.Text
+  status         NotificationStatus @default(PENDING)
+  providerRef    String?            @map("provider_ref") @db.VarChar(200)
+  sentAt         DateTime?          @map("sent_at") @db.Timestamptz(6)
+  deliveredAt    DateTime?          @map("delivered_at") @db.Timestamptz(6)
+  openedAt       DateTime?          @map("opened_at") @db.Timestamptz(6)
+  metadata       Json               @default("{}")
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?          @map("deleted_at") @db.Timestamptz(6)
+  version        Int                @default(1)
+
+  outbox NotificationOutbox @relation(fields: [outboxId], references: [id])
+
+  @@index([organizationId, outboxId])
+  @@index([organizationId, status])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_delivery_attempts")
+  @@map("email_messages")
 }
 
-model NotificationBatch {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+model SmsMessage {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String             @map("organization_id") @db.Uuid
+  outboxId       String             @map("outbox_id") @db.Uuid
+  toNumber       String             @map("to_number") @db.VarChar(20)
+  fromNumber     String             @map("from_number") @db.VarChar(20)
+  body           String             @db.VarChar(1600)
+  status         NotificationStatus @default(PENDING)
+  providerRef    String?            @map("provider_ref") @db.VarChar(200)
+  segmentCount   Int                @default(1) @map("segment_count")
+  sentAt         DateTime?          @map("sent_at") @db.Timestamptz(6)
+  deliveredAt    DateTime?          @map("delivered_at") @db.Timestamptz(6)
+  metadata       Json               @default("{}")
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?          @map("deleted_at") @db.Timestamptz(6)
+  version        Int                @default(1)
+
+  outbox NotificationOutbox @relation(fields: [outboxId], references: [id])
+
+  @@index([organizationId, outboxId])
+  @@index([organizationId, status])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_batches")
+  @@map("sms_messages")
 }
 
-model NotificationBatchItem {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+model PushDevice {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  platform       String    @db.VarChar(20)
+  deviceToken    String    @map("device_token") @db.VarChar(500)
+  appVersion     String?   @map("app_version") @db.VarChar(50)
+  isActive       Boolean   @default(true) @map("is_active")
+  lastUsedAt     DateTime? @map("last_used_at") @db.Timestamptz(6)
+  metadata       Json      @default("{}")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+  version        Int       @default(1)
+
+  @@unique([organizationId, deviceToken])
+  @@index([organizationId, userId])
+  @@index([organizationId, isActive])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_batch_items")
+  @@map("push_devices")
 }
 
-model NotificationRule {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+model WhatsAppMessage {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String             @map("organization_id") @db.Uuid
+  outboxId       String             @map("outbox_id") @db.Uuid
+  toNumber       String             @map("to_number") @db.VarChar(20)
+  templateName   String?            @map("template_name") @db.VarChar(100)
+  body           String             @db.VarChar(4096)
+  status         NotificationStatus @default(PENDING)
+  providerRef    String?            @map("provider_ref") @db.VarChar(200)
+  sentAt         DateTime?          @map("sent_at") @db.Timestamptz(6)
+  deliveredAt    DateTime?          @map("delivered_at") @db.Timestamptz(6)
+  readAt         DateTime?          @map("read_at") @db.Timestamptz(6)
+  metadata       Json               @default("{}")
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?          @map("deleted_at") @db.Timestamptz(6)
+  version        Int                @default(1)
+
+  outbox NotificationOutbox @relation(fields: [outboxId], references: [id])
+
+  @@index([organizationId, outboxId])
+  @@index([organizationId, status])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_rules")
+  @@map("whatsapp_messages")
 }
 
-model NotificationRuleCondition {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_rule_conditions")
-}
+model AppointmentReminderJob {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String            @map("organization_id") @db.Uuid
+  appointmentId  String            @map("appointment_id") @db.Uuid
+  patientId      String            @map("patient_id") @db.Uuid
+  templateId     String?           @map("template_id") @db.Uuid
+  channel        NotificationChannelType
+  status         ReminderJobStatus @default(SCHEDULED)
+  scheduledFor   DateTime          @map("scheduled_for") @db.Timestamptz(6)
+  processedAt    DateTime?         @map("processed_at") @db.Timestamptz(6)
+  outboxId       String?           @map("outbox_id") @db.Uuid
+  errorMessage   String?           @map("error_message") @db.VarChar(1000)
+  metadata       Json              @default("{}")
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  version        Int               @default(1)
 
-model NotificationQueue {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_queues")
-}
+  template NotificationTemplate? @relation(fields: [templateId], references: [id])
 
-model NotificationInApp {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
+  @@index([organizationId, appointmentId])
+  @@index([status, scheduledFor])
   @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_in_apps")
-}
-
-model NotificationSms {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_smses")
-}
-
-model NotificationEmail {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_emails")
-}
-
-model NotificationPush {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_pushes")
-}
-
-model NotificationWebhook {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_webhooks")
-}
-
-model NotificationDigest {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_digests")
-}
-
-model NotificationUnsubscribe {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_unsubscribes")
-}
-
-model NotificationAudit {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_audits")
-}
-
-model NotificationRecipient {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_recipients")
-}
-
-model NotificationSchedule {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_schedules")
-}
-
-model NotificationThrottle {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_throttles")
-}
-
-model NotificationFailureLog {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_failure_logs")
-}
-
-model NotificationOptOut {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_opt_outs")
-}
-
-model NotificationCategory {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String @map("organization_id") @db.Uuid
-  templateId String? @map("template_id") @db.Uuid
-  patientId String @map("patient_id") @db.Uuid
-  encounterId String? @map("encounter_id") @db.Uuid
-  providerId String? @map("provider_id") @db.Uuid
-  facilityId String? @map("facility_id") @db.Uuid
-  code String?
-  name String?
-  title String?
-  description String?
-  status String
-  notes String?
-  amount Decimal? @map("amount") @db.Decimal(14, 4)
-  quantity Int? @map("quantity")
-  occurredAt DateTime? @map("occurred_at") @db.Timestamptz(6)
-  effectiveAt DateTime? @map("effective_at") @db.Timestamptz(6)
-  effectiveDate DateTime? @map("effective_date") @db.Date
-  metadata Json @map("metadata") @default("{}")
-  payload Json @map("payload") @default("{}")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
-  version Int @default(1)
-  @@index([organizationId])
-  @@index([deletedAt])
-  @@index([userId])
-  @@index([patientId])
-  @@map("notification_categories")
+  @@map("appointment_reminder_jobs")
 }

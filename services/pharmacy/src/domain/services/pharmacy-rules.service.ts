@@ -1,48 +1,6 @@
 import { ValidationError } from '../errors/pharmacy.errors';
 
 export class PharmacyDomainRules {
-  validateNdcCode(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('ndcCode is required');
-    }
-  }
-
-  validateDrugName(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('drugName is required');
-    }
-  }
-
-  validateStrength(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('strength is required');
-    }
-  }
-
-  validateForm(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('form is required');
-    }
-  }
-
-  validateQuantityOnHand(value: number): void {
-    if (!Number.isFinite(value)) {
-      throw new ValidationError('quantityOnHand must be a finite number');
-    }
-  }
-
-  validateReorderLevel(value: number): void {
-    if (!Number.isFinite(value)) {
-      throw new ValidationError('reorderLevel must be a finite number');
-    }
-  }
-
-  validateUnitPriceCents(value: number): void {
-    if (!Number.isFinite(value)) {
-      throw new ValidationError('unitPriceCents must be a finite number');
-    }
-  }
-
   validateOrganizationScope(organizationId: string, resourceOrganizationId: string): void {
     if (organizationId !== resourceOrganizationId) {
       throw new ValidationError('Organization scope mismatch');
@@ -56,9 +14,20 @@ export class PharmacyDomainRules {
   }
 
   sanitizePayload(payload: Record<string, unknown>): Record<string, unknown> {
-    const allowed = new Set(["ndcCode","drugName","strength","form","quantityOnHand","reorderLevel","unitPriceCents","status"]);
-    return Object.fromEntries(
-      Object.entries(payload).filter(([key]) => allowed.has(key)),
+    const blocked = new Set(['id', 'organizationId', 'createdAt', 'deletedAt', 'version']);
+    return Object.fromEntries(Object.entries(payload).filter(([k]) => !blocked.has(k)));
+  }
+
+  checkDrugInteraction(drugA: string, drugB: string): void {
+    const interactions = [
+      { a: 'WARFARIN', b: 'ASPIRIN', severity: 'MAJOR' },
+      { a: 'METFORMIN', b: 'CONTRAST_DYE', severity: 'MODERATE' },
+    ];
+    const hit = interactions.find(
+      (i) => (i.a === drugA && i.b === drugB) || (i.a === drugB && i.b === drugA),
     );
+    if (hit?.severity === 'MAJOR') {
+      throw new ValidationError(`Major drug interaction: ${drugA} + ${drugB}`);
+    }
   }
 }

@@ -271,6 +271,8 @@ export function calculateAge(dateOfBirth: Date, asOf: Date = new Date()): number
   return Math.max(0, age);
 }
 
+export * from './sanitize';
+
 export function retryWithBackoff<T>(
   operation: () => Promise<T>,
   options: {

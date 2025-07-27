@@ -1,0 +1,288 @@
+# MedSphere production Docker Compose stack
+# Usage: docker compose -f infrastructure/docker/docker-compose.prod.yml up -d
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks:
+    - medsphere-prod
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+x-nest-resources: &nest-resources
+  deploy:
+    resources:
+      limits:
+        cpus: "1.0"
+        memory: 1G
+      reservations:
+        cpus: "0.25"
+        memory: 512M
+
+services:
+  postgres:
+    <<: *service-defaults
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-medsphere}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-medsphere}
+    volumes:
+      - medsphere_prod_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medsphere}"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+
+  redis:
+    <<: *service-defaults
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?set REDIS_PASSWORD}"]
+    volumes:
+      - medsphere_prod_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  kafka:
+    <<: *service-defaults
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on:
+      zookeeper:
+        condition: service_started
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+
+  zookeeper:
+    <<: *service-defaults
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  api-gateway:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/api-gateway.Dockerfile
+    image: medsphere/api-gateway:prod
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      GATEWAY_PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      UPSTREAM_HOST: ${UPSTREAM_HOST:-host.docker.internal}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  auth:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/auth.Dockerfile
+    image: medsphere/auth:prod
+    environment:
+      NODE_ENV: production
+      AUTH_SERVICE_PORT: 3001
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  patient:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/patient.Dockerfile
+    image: medsphere/patient:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3010
+      DATABASE_URL: ${DATABASE_URL}
+
+  doctor:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/doctor.Dockerfile
+    image: medsphere/doctor:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3011
+      DATABASE_URL: ${DATABASE_URL}
+
+  appointment:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/appointment.Dockerfile
+    image: medsphere/appointment:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3012
+      DATABASE_URL: ${DATABASE_URL}
+
+  medical-record:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/medical-record.Dockerfile
+    image: medsphere/medical-record:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3013
+      DATABASE_URL: ${DATABASE_URL}
+
+  pharmacy:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/pharmacy.Dockerfile
+    image: medsphere/pharmacy:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3014
+      DATABASE_URL: ${DATABASE_URL}
+
+  laboratory:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/laboratory.Dockerfile
+    image: medsphere/laboratory:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3015
+      DATABASE_URL: ${DATABASE_URL}
+
+  radiology:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/radiology.Dockerfile
+    image: medsphere/radiology:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3016
+      DATABASE_URL: ${DATABASE_URL}
+
+  billing:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/billing.Dockerfile
+    image: medsphere/billing:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3018
+      DATABASE_URL: ${DATABASE_URL}
+
+  insurance:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/insurance.Dockerfile
+    image: medsphere/insurance:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3019
+      DATABASE_URL: ${DATABASE_URL}
+
+  notification:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/notification.Dockerfile
+    image: medsphere/notification:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3022
+      DATABASE_URL: ${DATABASE_URL}
+      KAFKA_BROKERS: kafka:9092
+
+  video-consultation:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/video-consultation.Dockerfile
+    image: medsphere/video-consultation:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3026
+      DATABASE_URL: ${DATABASE_URL}
+
+  diagnosis-ai:
+    <<: *service-defaults
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/diagnosis-ai.Dockerfile
+    image: medsphere/diagnosis-ai:prod
+    environment:
+      PORT: 4200
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  worker:
+    <<: [*service-defaults, *nest-resources]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/apps/worker.Dockerfile
+    image: medsphere/worker:prod
+    environment:
+      NODE_ENV: production
+      PORT: 3028
+      DATABASE_URL: ${DATABASE_URL}
+      KAFKA_BROKERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_started
+
+networks:
+  medsphere-prod:
+    driver: bridge
+
+volumes:
+  medsphere_prod_pg:
+  medsphere_prod_redis:

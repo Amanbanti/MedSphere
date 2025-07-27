@@ -22,3 +22,9 @@ export class PatientConflictError extends ConflictError {
     super(reason);
   }
 }
+
+export class OptimisticLockError extends ConflictError {
+  constructor(id: string, actualVersion: number) {
+    super(`Optimistic lock failure for ${id}: version ${actualVersion}`);
+  }
+}

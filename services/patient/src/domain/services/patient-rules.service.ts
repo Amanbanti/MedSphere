@@ -1,24 +1,6 @@
 import { ValidationError } from '../errors/patient.errors';
 
 export class PatientDomainRules {
-  validateMrn(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('mrn is required');
-    }
-  }
-
-  validateFirstName(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('firstName is required');
-    }
-  }
-
-  validateLastName(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('lastName is required');
-    }
-  }
-
   validateOrganizationScope(organizationId: string, resourceOrganizationId: string): void {
     if (organizationId !== resourceOrganizationId) {
       throw new ValidationError('Organization scope mismatch');
@@ -32,9 +14,21 @@ export class PatientDomainRules {
   }
 
   sanitizePayload(payload: Record<string, unknown>): Record<string, unknown> {
-    const allowed = new Set(["mrn","firstName","lastName","dateOfBirth","gender","email","phone","bloodType","status"]);
-    return Object.fromEntries(
-      Object.entries(payload).filter(([key]) => allowed.has(key)),
-    );
+    const blocked = new Set(['id', 'organizationId', 'createdAt', 'deletedAt', 'version']);
+    return Object.fromEntries(Object.entries(payload).filter(([k]) => !blocked.has(k)));
+  }
+
+  validateAllergySeverity(severity: string): void {
+    const allowed = ['MILD', 'MODERATE', 'SEVERE', 'LIFE_THREATENING', 'UNKNOWN'];
+    if (!allowed.includes(severity)) throw new ValidationError('Invalid allergy severity');
+    if (severity === 'LIFE_THREATENING') {
+      // Escalation: life-threatening allergies require verification flag
+    }
+  }
+
+  validateBloodPressure(systolic: number, diastolic: number): void {
+    if (systolic < 50 || systolic > 300) throw new ValidationError('systolic out of range');
+    if (diastolic < 30 || diastolic > 200) throw new ValidationError('diastolic out of range');
+    if (systolic <= diastolic) throw new ValidationError('systolic must exceed diastolic');
   }
 }

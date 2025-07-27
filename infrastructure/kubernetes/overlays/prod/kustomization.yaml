@@ -1,0 +1,66 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: medsphere-prod
+
+resources:
+  - ../../base
+
+commonLabels:
+  environment: production
+  app.kubernetes.io/environment: production
+
+patches:
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target:
+      kind: Deployment
+      name: api-gateway
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+  - target:
+      kind: Deployment
+      name: worker
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+
+configMapGenerator:
+  - name: medsphere-prod-config
+    literals:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - FEATURE_FLAGS_ENABLED=true
+
+secretGenerator:
+  - name: medsphere-prod-secrets
+    behavior: merge
+    envs:
+      - secrets.env
+
+images:
+  - name: ghcr.io/medsphere/api-gateway
+    newTag: prod
+  - name: ghcr.io/medsphere/auth
+    newTag: prod
+  - name: ghcr.io/medsphere/patient
+    newTag: prod
+
+replicas:
+  - name: api-gateway
+    count: 3
+  - name: auth
+    count: 3
+  - name: patient
+    count: 3
+  - name: appointment
+    count: 3
+  - name: worker
+    count: 2

@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { CorrelationId, CurrentUser } from '@medsphere/auth-sdk';
 import { successBody, type JwtAccessPayload, type ListQuery, type UUID } from '@medsphere/shared';
 import { RegisterDoctorUseCase } from '../../application/use-cases/register-doctor.use-case';
@@ -8,6 +9,111 @@ import { SetDoctorAvailabilityUseCase } from '../../application/use-cases/set-do
 import { GetDoctorProfileUseCase } from '../../application/use-cases/get-doctor-profile.use-case';
 import { ListDoctorsUseCase } from '../../application/use-cases/list-doctors.use-case';
 import { SuspendDoctorUseCase } from '../../application/use-cases/suspend-doctor.use-case';
+
+export class RegisterDoctorDto {
+  @IsString()
+  npi: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  specialty: string;
+
+  @IsString()
+  licenseNumber: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class UpdateDoctorCredentialsDto {
+  @IsString()
+  npi: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  specialty: string;
+
+  @IsString()
+  licenseNumber: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class AssignDoctorDepartmentDto {
+  @IsString()
+  npi: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  specialty: string;
+
+  @IsString()
+  licenseNumber: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class SetDoctorAvailabilityDto {
+  @IsString()
+  npi: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  specialty: string;
+
+  @IsString()
+  licenseNumber: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class SuspendDoctorDto {
+  @IsString()
+  npi: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
+  specialty: string;
+
+  @IsString()
+  licenseNumber: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
 
 @Controller('doctors')
 export class DoctorController {
@@ -26,8 +132,8 @@ export class DoctorController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: RegisterDoctorDto,
   ) {
     const result = await this.registerDoctorUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -39,7 +145,6 @@ export class DoctorController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -49,8 +154,8 @@ export class DoctorController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: UpdateDoctorCredentialsDto,
   ) {
     const result = await this.updateDoctorCredentialsUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -62,7 +167,6 @@ export class DoctorController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -72,8 +176,8 @@ export class DoctorController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: AssignDoctorDepartmentDto,
   ) {
     const result = await this.assignDoctorDepartmentUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -85,7 +189,6 @@ export class DoctorController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -95,8 +198,8 @@ export class DoctorController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: SetDoctorAvailabilityDto,
   ) {
     const result = await this.setDoctorAvailabilityUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -108,7 +211,6 @@ export class DoctorController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -118,8 +220,8 @@ export class DoctorController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.getDoctorProfileUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -129,9 +231,8 @@ export class DoctorController {
       
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }
@@ -141,8 +242,8 @@ export class DoctorController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.listDoctorsUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -152,9 +253,8 @@ export class DoctorController {
       
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }
@@ -164,8 +264,8 @@ export class DoctorController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: SuspendDoctorDto,
   ) {
     const result = await this.suspendDoctorUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -177,7 +277,6 @@ export class DoctorController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }

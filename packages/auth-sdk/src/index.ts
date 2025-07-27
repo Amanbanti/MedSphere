@@ -7,5 +7,7 @@ export * from './rbac';
 export * from './abac';
 export * from './decorators';
 export * from './guards';
+export * from './guards/csrf.guard';
+export * from './middleware/security-headers.middleware';
 export * from './password';
 export * from './api-keys';

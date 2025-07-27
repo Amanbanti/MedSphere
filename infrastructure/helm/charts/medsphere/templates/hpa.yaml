@@ -1,0 +1,33 @@
+{{- if .Values.autoscaling.enabled }}
+{{- range $name, $svc := .Values.services }}
+{{- if and $svc.enabled ($svc.autoscaling.enabled | default $.Values.autoscaling.enabled) }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $name }}-hpa
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $name }}
+  minReplicas: {{ $svc.autoscaling.minReplicas | default $.Values.autoscaling.minReplicas | default 2 }}
+  maxReplicas: {{ $svc.autoscaling.maxReplicas | default $.Values.autoscaling.maxReplicas | default 10 }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $.Values.autoscaling.targetCPUUtilizationPercentage | default 70 }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $.Values.autoscaling.targetMemoryUtilizationPercentage | default 80 }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

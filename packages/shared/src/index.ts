@@ -18,3 +18,6 @@ export * from './reference';
 export * from './testing';
 export * from './cds';
 export * from './i18n';
+export * from './feature-flags';
+export * from './money';
+export * from './insurance/claim-workflow';

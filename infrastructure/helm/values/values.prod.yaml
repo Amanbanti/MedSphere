@@ -1,0 +1,207 @@
+# MedSphere production Helm values overlay
+# Usage: helm upgrade --install medsphere infrastructure/helm/charts/medsphere \
+#   -f infrastructure/helm/values/values.prod.yaml -n medsphere
+
+global:
+  imageRegistry: ghcr.io/medsphere
+  imageTag: "1.0.0"
+  environment: production
+  domain: medsphere.health
+  envFromSecrets:
+    - medsphere-database
+    - medsphere-jwt
+    - medsphere-redis
+    - medsphere-kafka
+    - medsphere-minio
+
+postgresql:
+  enabled: true
+  auth:
+    existingSecret: medsphere-database
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+    database: medsphere
+    username: medsphere
+  primary:
+    persistence:
+      enabled: true
+      size: 200Gi
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: "4"
+        memory: 8Gi
+
+redis:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: true
+    existingSecret: medsphere-redis
+  master:
+    persistence:
+      size: 20Gi
+  replica:
+    replicaCount: 2
+
+kafka:
+  enabled: true
+  replicaCount: 3
+  persistence:
+    size: 100Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  tls:
+    - secretName: medsphere-api-tls
+      hosts:
+        - api.medsphere.health
+        - admin.medsphere.health
+        - portal.medsphere.health
+  hosts:
+    - host: api.medsphere.health
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api-gateway
+    - host: admin.medsphere.health
+      paths:
+        - path: /
+          pathType: Prefix
+          service: admin-portal
+    - host: portal.medsphere.health
+      paths:
+        - path: /
+          pathType: Prefix
+          service: patient-portal
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+networkPolicies:
+  enabled: true
+  defaultDenyIngress: true
+  allowNamespaces:
+    - ingress-nginx
+    - medsphere-monitoring
+
+envFrom:
+  - secretRef:
+      name: medsphere-database
+  - secretRef:
+      name: medsphere-jwt
+  - secretRef:
+      name: medsphere-redis
+
+services:
+  api-gateway:
+    enabled: true
+    replicaCount: 3
+    autoscaling:
+      enabled: true
+      minReplicas: 3
+      maxReplicas: 12
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: "2"
+        memory: 2Gi
+  auth:
+    enabled: true
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  patient:
+    enabled: true
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+  doctor:
+    enabled: true
+    replicaCount: 3
+  appointment:
+    enabled: true
+    replicaCount: 3
+  medical-record:
+    enabled: true
+    replicaCount: 3
+  pharmacy:
+    enabled: true
+    replicaCount: 2
+  laboratory:
+    enabled: true
+    replicaCount: 2
+  radiology:
+    enabled: true
+    replicaCount: 2
+  billing:
+    enabled: true
+    replicaCount: 2
+  insurance:
+    enabled: true
+    replicaCount: 2
+  notification:
+    enabled: true
+    replicaCount: 2
+  video-consultation:
+    enabled: true
+    replicaCount: 2
+  diagnosis-ai:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
+  worker:
+    enabled: true
+    replicaCount: 2
+
+monitoring:
+  prometheus:
+    enabled: true
+    retention: 30d
+  grafana:
+    enabled: true
+  alertmanager:
+    enabled: true

@@ -1,0 +1,14 @@
+# MedSphere CODEOWNERS
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @medsphere/platform-team
+
+/apps/ @medsphere/frontend-team
+/packages/ui/ @medsphere/frontend-team
+/packages/auth-sdk/ @medsphere/security-team
+/packages/shared/ @medsphere/platform-team
+/services/auth/ @medsphere/security-team
+/infrastructure/ @medsphere/devops-team
+/docs/security/ @medsphere/security-team
+/.github/ @medsphere/devops-team
+/tests/ @medsphere/qa-team

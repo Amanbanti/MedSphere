@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     max_symptoms: int = 32
     interaction_confidence_threshold: float = 0.55
+    image_weights_path: str | None = None
 
 
 settings = Settings()

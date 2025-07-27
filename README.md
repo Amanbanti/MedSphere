@@ -2,73 +2,152 @@
 
 Enterprise Hospital Information System (HIS), Electronic Medical Record (EMR), and Electronic Health Record (EHR) platform for hospitals, clinics, laboratories, pharmacies, and insurance providers.
 
+**Version 1.0.0** — Production ready (Phase 8 complete)
+
+## Quickstart
+
+```bash
+# Prerequisites: Node.js 20+, pnpm 9+, Docker
+pnpm install
+pnpm docker:up          # Start PostgreSQL, Redis, Kafka, monitoring stack
+pnpm db:migrate         # Apply database migrations
+pnpm dev                # Start all apps and services
+
+# Production stack (local)
+docker compose -f infrastructure/docker/docker-compose.prod.yml up -d
+
+# Health check
+node scripts/ops/health-check-all.mjs
+node scripts/ops/smoke-test.mjs
+```
+
 ## Architecture
 
-MedSphere is a production monorepo organized as:
+```mermaid
+flowchart TB
+  subgraph clients [Clients]
+    Web[Web / Marketing]
+    Admin[Admin Portal]
+    Patient[Patient Portal]
+    Doctor[Doctor Portal]
+  end
+
+  subgraph edge [Edge Layer]
+    GW[API Gateway<br/>NestJS]
+  end
+
+  subgraph services [Microservices]
+    Auth[Auth]
+    PatientSvc[Patient]
+    DoctorSvc[Doctor]
+    Appt[Appointment]
+    EMR[Medical Record]
+    Lab[Laboratory]
+    Rad[Radiology]
+    Pharm[Pharmacy]
+    Bill[Billing]
+    Ins[Insurance]
+    Notif[Notification]
+    Video[Video Consultation]
+    AI[Diagnosis AI]
+    Worker[Worker]
+  end
+
+  subgraph data [Data Platform]
+    PG[(PostgreSQL)]
+    Redis[(Redis)]
+    Kafka[[Kafka]]
+    MinIO[(MinIO)]
+    ES[(Elasticsearch)]
+  end
+
+  subgraph observability [Observability]
+    Prom[Prometheus]
+    Graf[Grafana]
+    OTEL[OpenTelemetry]
+    Jaeger[Jaeger]
+  end
+
+  clients --> GW
+  GW --> Auth & PatientSvc & DoctorSvc & Appt & EMR & Lab & Rad & Pharm & Bill & Ins & Notif & Video & AI
+  services --> PG & Redis & Kafka
+  Lab & Rad --> MinIO
+  services --> ES
+  services --> OTEL --> Jaeger
+  OTEL --> Prom --> Graf
+```
+
+## Repository Structure
 
 | Layer | Path | Purpose |
 |-------|------|---------|
 | Applications | `apps/` | Next.js portals and NestJS API gateway |
 | Microservices | `services/` | Domain-bounded NestJS / FastAPI services |
-| Shared packages | `packages/` | Database, UI, auth, SDK, logging, config |
+| Shared packages | `packages/` | Database, UI, auth SDK, monitoring, shared utils |
 | Infrastructure | `infrastructure/` | Docker, Kubernetes, Helm, Terraform |
-| Documentation | `docs/` | Architecture, security, API, deployment |
+| Tests | `tests/` | E2E, load, performance, contract tests |
+| Documentation | `docs/` | Architecture, security, deployment guides |
 
-## Applications
+## Production Deployment
 
-- `web` — Public marketing and entry
-- `admin` — Hospital administration
-- `patient-portal` — Patient self-service
-- `doctor-portal` — Clinical workstation
-- `nurse-portal` — Nursing workflows
-- `pharmacy-portal` — Pharmacy operations
-- `laboratory-portal` — Lab orders and results
-- `radiology-portal` — Imaging and DICOM
-- `billing` — Revenue cycle
-- `insurance` — Claims and eligibility
-- `telemedicine` — Video consultation
-- `analytics` — Operational intelligence
-- `notifications` — Notification center
-- `api-gateway` — Edge routing, auth, rate limits
+| Environment | Method | Config |
+|-------------|--------|--------|
+| Development | Docker Compose | `infrastructure/docker/docker-compose.yml` |
+| Staging | Helm | `infrastructure/helm/charts/medsphere/values.yaml` |
+| Production | Helm + Kustomize | `infrastructure/helm/values/values.prod.yaml` |
 
-## Services
+```bash
+# Deploy to production
+helm upgrade --install medsphere infrastructure/helm/charts/medsphere \
+  -f infrastructure/helm/values/values.prod.yaml \
+  -n medsphere --create-namespace
 
-Auth, Patient, Doctor, Appointment, Medical Record, Pharmacy, Laboratory, Radiology, Imaging, Billing, Insurance, Payment, Prescription, Diagnosis AI, Notification, Analytics, Audit, Search, Video Consultation, Queue, Worker.
+# Or Kustomize overlay
+kubectl apply -k infrastructure/kubernetes/overlays/prod
+```
+
+## Key Services
+
+| Service | Port | Health |
+|---------|------|--------|
+| API Gateway | 4000 | `/health/live` |
+| Auth | 3001 | `/api/v1/health/live` |
+| Patient | 3010 | `/api/v1/health/live` |
+| Diagnosis AI | 4200 | `/health` |
+
+Full service map: [docs/architecture/README.md](docs/architecture/README.md)
+
+## Security & Compliance
+
+- HIPAA technical safeguards — [docs/security/hipaa-control-matrix.md](docs/security/hipaa-control-matrix.md)
+- OWASP Top 10 mitigations — [docs/security/owasp-top10.md](docs/security/owasp-top10.md)
+- Security headers, CSRF guards, input sanitization built into gateway and auth SDK
+- Secret scanning (Gitleaks) and container scanning (Trivy) in CI
+
+## Testing
+
+```bash
+pnpm test:cov                                          # Unit tests (90% threshold target)
+node scripts/ops/run-contract-tests.mjs                # Contract tests
+npx playwright test --config tests/e2e/playwright.config.ts  # E2E
+k6 run tests/load/k6/gateway-proxy.js                # Load test
+k6 run tests/performance/k6/soak-test.js             # Soak test
+```
+
+## Documentation
+
+- [Developer Guide](docs/guides/developer-guide.md)
+- [Admin Guide](docs/guides/admin-guide.md)
+- [User Guide](docs/guides/user-guide.md)
+- [Deployment Guide](docs/deployment/README.md)
+- [Production Readiness Checklist](docs/architecture/PRODUCTION_READINESS.md)
 
 ## Tech Stack
 
-- **Frontend:** Next.js, React, TypeScript, TailwindCSS, ShadCN UI, TanStack Query, React Hook Form, Zod, Framer Motion
-- **Backend:** NestJS, TypeScript
-- **AI:** Python, FastAPI, PyTorch
-- **Data:** PostgreSQL (Prisma), MongoDB, Redis, MinIO, Elasticsearch, Kafka
-- **Ops:** Docker, Kubernetes, Helm, Terraform, Prometheus, Grafana, OpenTelemetry, Jaeger, Loki, GitHub Actions
-
-## Development Phases
-
-1. Project setup, monorepo, infrastructure, CI/CD, authentication
-2. Patient, doctor, appointments
-3. EMR, patient portal, doctor portal
-4. Laboratory, radiology, imaging, pharmacy
-5. Billing, insurance, payments, notifications
-6. AI diagnosis, imaging AI, CDS, analytics
-7. Telemedicine, video, messaging
-8. Optimization, testing, documentation, performance
-
-## Getting Started
-
-```bash
-# Prerequisites: Node.js 20+, pnpm 9+, Docker
-pnpm install
-pnpm docker:up
-pnpm db:migrate
-pnpm dev
-```
-
-See [docs/guides](docs/guides) and [docs/architecture](docs/architecture) for full guidance.
-
-## Compliance
-
-Designed around HIPAA technical safeguards, OWASP Top 10 mitigations, encryption in transit and at rest, RBAC/ABAC, audit logging, and least-privilege access.
+- **Frontend:** Next.js, React, TypeScript, TailwindCSS, ShadCN UI
+- **Backend:** NestJS, TypeScript; Diagnosis AI: FastAPI, Python
+- **Data:** PostgreSQL (Prisma), Redis, Kafka, MinIO, Elasticsearch
+- **Ops:** Docker, Kubernetes, Helm, Prometheus, Grafana, OpenTelemetry
 
 ## License
 

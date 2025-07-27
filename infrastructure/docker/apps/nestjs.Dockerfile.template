@@ -1,0 +1,57 @@
+﻿# MedSphere shared NestJS multi-stage production Dockerfile template
+# Copy this file and set build args: WORKSPACE, PACKAGE, PORT, HEALTH_PATH
+#
+# Example build:
+#   docker build -f infrastructure/docker/apps/auth.Dockerfile \
+#     --build-arg WORKSPACE=services/auth \
+#     --build-arg PACKAGE=@medsphere/service-auth \
+#     --build-arg PORT=3001 \
+#     --build-arg HEALTH_PATH=/api/v1/health/live \
+#     -t medsphere/auth:prod .
+
+ARG NODE_VERSION=20.11.0
+FROM node:${NODE_VERSION}-alpine AS base
+RUN apk add --no-cache libc6-compat wget \
+  && corepack enable \
+  && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+ENV PNPM_HOME="/pnpm" PATH="/pnpm:$PATH"
+
+FROM base AS deps
+ARG WORKSPACE
+ARG PACKAGE
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY packages packages
+COPY apps apps
+COPY services services
+RUN pnpm install --frozen-lockfile --filter ${PACKAGE}...
+
+FROM base AS build
+ARG WORKSPACE
+ARG PACKAGE
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages ./packages
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY packages packages
+COPY apps apps
+COPY services services
+RUN pnpm --filter ${PACKAGE} build
+
+FROM node:${NODE_VERSION}-alpine AS production
+ARG PORT=8080
+ARG HEALTH_PATH=/health/live
+RUN apk add --no-cache wget \
+  && addgroup -g 1001 medsphere \
+  && adduser -u 1001 -G medsphere -D medsphere
+WORKDIR /app
+ENV NODE_ENV=production PORT=${PORT}
+ARG WORKSPACE
+ARG PACKAGE
+COPY --from=build --chown=medsphere:medsphere /app/${WORKSPACE}/dist ./dist
+COPY --from=build --chown=medsphere:medsphere /app/${WORKSPACE}/package.json ./package.json
+COPY --from=deps --chown=medsphere:medsphere /app/node_modules ./node_modules
+USER medsphere
+EXPOSE ${PORT}
+HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:${PORT}${HEALTH_PATH} || exit 1
+CMD ["node", "dist/main.js"]

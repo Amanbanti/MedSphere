@@ -2,15 +2,24 @@
 
 Inventory, dispensing, and pricing
 
-## Endpoints
+## API Endpoints
 
 Base path: `/api/v1/pharmacy-items`
 
-- `POST /inventory` — AddPharmacyInventory
-- `POST /dispense` — DispenseMedication
-- `GET /inventory/:ndcCode` — CheckPharmacyStock
-- `PATCH /inventory/:id/pricing` — UpdatePharmacyPricing
-- `GET /inventory` — ListPharmacyInventory
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/inventory` | AddPharmacyInventory |
+| POST | `/dispense` | DispenseMedication |
+| GET | `/inventory/:ndcCode` | CheckPharmacyStock |
+| PATCH | `/inventory/:id/pricing` | UpdatePharmacyPricing |
+| GET | `/inventory` | ListPharmacyInventory |
+
+## Architecture
+
+- **Prisma repository** — tenant-scoped queries, soft-delete filters, optimistic version checks
+- **State machine** — valid status transitions enforced in domain layer
+- **Kafka publisher** — domain events on create/update/status change
+- **Cache adapter** — in-memory list cache (Redis-ready interface)
 
 ## Development
 
@@ -23,11 +32,3 @@ pnpm --filter @medsphere/service-pharmacy dev
 ```bash
 pnpm --filter @medsphere/service-pharmacy test
 ```
-
-## Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | 3014 | HTTP port |
-| `USE_IN_MEMORY_REPO` | false | Use in-memory persistence |
-| `SERVICE_NAME` | pharmacy-service | Logger service name |

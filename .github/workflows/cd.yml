@@ -20,26 +20,35 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
+  # Placeholder — replace with your org registry
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/medsphere
 
 jobs:
   build-and-push:
-    name: Build & Push Images
+    name: Build & Push — ${{ matrix.service }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
       matrix:
         service:
           - api-gateway
+          - auth
           - patient
           - doctor
           - appointment
-          - billing
-          - laboratory
+          - medical-record
           - pharmacy
-          - auth
+          - laboratory
+          - radiology
+          - billing
+          - insurance
+          - notification
+          - video-consultation
+          - diagnosis-ai
+          - worker
     steps:
       - uses: actions/checkout@v4
 
@@ -54,13 +63,14 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: infrastructure/docker/services/${{ matrix.service }}.Dockerfile
+          file: infrastructure/docker/apps/${{ matrix.service }}.Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
             ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ inputs.environment || 'staging' }}
 
-  deploy:
+  deploy-staging:
     name: Deploy to ${{ inputs.environment || 'staging' }}
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -75,13 +85,24 @@ jobs:
 
       - name: Deploy with Helm
         run: |
+          VALUES_FILE="infrastructure/helm/charts/medsphere/values.yaml"
+          if [ "${{ inputs.environment || 'staging' }}" = "production" ]; then
+            VALUES_FILE="infrastructure/helm/values/values.prod.yaml"
+          fi
           helm upgrade --install medsphere infrastructure/helm/charts/medsphere \
             --namespace medsphere \
+            --create-namespace \
+            -f "$VALUES_FILE" \
             --set global.imageTag=${{ github.sha }} \
             --set global.environment=${{ inputs.environment || 'staging' }} \
-            --wait --timeout 10m
+            --wait --timeout 15m
 
       - name: Verify rollout
         run: |
           kubectl rollout status deployment/api-gateway -n medsphere --timeout=300s
+          kubectl rollout status deployment/auth -n medsphere --timeout=300s
           kubectl get pods -n medsphere
+
+      - name: Smoke test
+        run: node scripts/ops/smoke-test.mjs --base-url ${{ secrets.STAGING_API_URL || 'https://api.staging.medsphere.health' }}
+        continue-on-error: true

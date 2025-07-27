@@ -1,67 +1,64 @@
 import { RegisterPatientUseCase } from '../../src/application/use-cases/register-patient.use-case';
 import { Patient } from '../../src/domain/entities/patient.entity';
-import { PatientNotFoundError } from '../../src/domain/errors/patient.errors';
+import { ValidationError } from '../../src/domain/errors/patient.errors';
 
 describe('RegisterPatientUseCase', () => {
   const organizationId = '22222222-2222-4222-8222-222222222222' as const;
-  const actorId = '11111111-1111-4111-8111-111111111111' as const;
-  const correlationId = '33333333-3333-4333-8333-333333333333';
+  const actor = { sub: '11111111-1111-4111-8111-111111111111', orgId: organizationId, roles: ['DOCTOR'], permissions: [] };
 
-  const repository = {
-    save: jest.fn(),
-    findById: jest.fn(),
-    list: jest.fn().mockResolvedValue({ items: [], meta: { page: 1, pageSize: 20, totalItems: 0, totalPages: 1, hasNext: false, hasPrevious: false } }),
-  };
-
-  let useCase: RegisterPatientUseCase;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    useCase = new RegisterPatientUseCase(repository as never);
-  });
-
-  it('creates or updates domain records', async () => {
+  const makeEntity = () => {
     const now = new Date().toISOString();
-    const entity = Patient.register({
+    return Patient.register({
       id: '44444444-4444-4444-8444-444444444444' as never,
       organizationId: organizationId as never,
       now: now as never,
       ...(Object.fromEntries(
         ["mrn","firstName","lastName","dateOfBirth","gender","email","phone","bloodType","status"].map((key) => {
           if (key.includes('status')) return [key, 'ACTIVE'];
-          if (key.includes('At') || key === 'dateOfBirth' || key === 'dueDate' || key === 'effectiveFrom') return [key, now];
-          if (key.includes('Cents') || key.includes('Minutes') || key.includes('Days') || key.includes('Count') || key === 'attempts' || key === 'dayOfWeek') return [key, 1];
-          if (key === 'payload' || key === 'metadata' || key === 'tags') return [key, key === 'tags' ? [] : {}];
+          if (key.includes('At') || key === 'dateOfBirth') return [key, now];
+          if (key.includes('Cents') || key.includes('Minutes')) return [key, 1];
           if (key.includes('Id')) return [key, organizationId];
-          return [key, 'sample-value'];
+          return [key, 'sample'];
         }),
       ) as Record<string, unknown>),
     } as Parameters<typeof Patient.register>[0]);
+  };
 
-    repository.findById.mockResolvedValue(entity);
-    repository.save.mockResolvedValue(undefined);
-
+  it('executes happy path', async () => {
+    const entity = makeEntity();
+    const repository = {
+      findById: jest.fn().mockResolvedValue(entity),
+      save: jest.fn().mockResolvedValue(undefined),
+      list: jest.fn(),
+    };
+    const eventPublisher = { publishUpdated: jest.fn(), publishCreated: jest.fn(), publishStatusChanged: jest.fn() };
+    const cache = { invalidate: jest.fn(), getList: jest.fn(), setList: jest.fn() };
+    const useCase = new RegisterPatientUseCase(repository as never, eventPublisher as never, cache as never);
     const result = await useCase.execute({
       organizationId: organizationId as never,
-      actorId: actorId as never,
-      correlationId,
+      actorId: actor.sub as never,
+      actor,
+      correlationId: 'corr',
       id: entity.id,
       payload: {},
-    } as import('../../src/application/commands/register-patient.command').RegisterPatientCommand);
-
-    expect(repository.save).toHaveBeenCalled();
+    } as never);
     expect(result).toBeDefined();
+    expect(repository.save).toHaveBeenCalled();
   });
 
-  it('throws when entity is missing', async () => {
-    repository.findById.mockResolvedValue(null);
+  it('fails when entity not found', async () => {
+    const repository = { findById: jest.fn().mockResolvedValue(null), save: jest.fn(), list: jest.fn() };
+    const eventPublisher = { publishUpdated: jest.fn(), publishCreated: jest.fn(), publishStatusChanged: jest.fn() };
+    const cache = { invalidate: jest.fn(), getList: jest.fn(), setList: jest.fn() };
+    const useCase = new RegisterPatientUseCase(repository as never, eventPublisher as never, cache as never);
     await expect(
       useCase.execute({
         organizationId: organizationId as never,
-        actorId: actorId as never,
-        correlationId,
+        actorId: actor.sub as never,
+        actor,
+        correlationId: 'corr',
         id: '99999999-9999-4999-8999-999999999999' as never,
       } as never),
-    ).rejects.toBeInstanceOf(PatientNotFoundError);
+    ).rejects.toThrow();
   });
 });

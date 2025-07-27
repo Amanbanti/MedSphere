@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { CorrelationId, CurrentUser } from '@medsphere/auth-sdk';
 import { successBody, type JwtAccessPayload, type ListQuery, type UUID } from '@medsphere/shared';
 import { OrderLabTestUseCase } from '../../application/use-cases/order-lab-test.use-case';
@@ -6,6 +7,69 @@ import { CollectLabSampleUseCase } from '../../application/use-cases/collect-lab
 import { ReportLabResultUseCase } from '../../application/use-cases/report-lab-result.use-case';
 import { ListLabOrdersUseCase } from '../../application/use-cases/list-lab-orders.use-case';
 import { GetLabOrderUseCase } from '../../application/use-cases/get-lab-order.use-case';
+
+export class OrderLabTestDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  orderingProviderId: string;
+
+  @IsString()
+  testCode: string;
+
+  @IsString()
+  testName: string;
+
+  @IsString()
+  priority: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class CollectLabSampleDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  orderingProviderId: string;
+
+  @IsString()
+  testCode: string;
+
+  @IsString()
+  testName: string;
+
+  @IsString()
+  priority: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class ReportLabResultDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  orderingProviderId: string;
+
+  @IsString()
+  testCode: string;
+
+  @IsString()
+  testName: string;
+
+  @IsString()
+  priority: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
 
 @Controller('lab-orders')
 export class LabOrderController {
@@ -22,8 +86,8 @@ export class LabOrderController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: OrderLabTestDto,
   ) {
     const result = await this.orderLabTestUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -35,7 +99,6 @@ export class LabOrderController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -45,8 +108,8 @@ export class LabOrderController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: CollectLabSampleDto,
   ) {
     const result = await this.collectLabSampleUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -58,7 +121,6 @@ export class LabOrderController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -68,8 +130,8 @@ export class LabOrderController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: ReportLabResultDto,
   ) {
     const result = await this.reportLabResultUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -81,7 +143,6 @@ export class LabOrderController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -91,8 +152,8 @@ export class LabOrderController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.listLabOrdersUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -102,9 +163,8 @@ export class LabOrderController {
       
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }
@@ -114,8 +174,8 @@ export class LabOrderController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.getLabOrderUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -125,9 +185,8 @@ export class LabOrderController {
       
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }

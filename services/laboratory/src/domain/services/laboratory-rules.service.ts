@@ -1,18 +1,6 @@
 import { ValidationError } from '../errors/laboratory.errors';
 
 export class LaboratoryDomainRules {
-  validateTestCode(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('testCode is required');
-    }
-  }
-
-  validateTestName(value: string): void {
-    if (!value?.trim()) {
-      throw new ValidationError('testName is required');
-    }
-  }
-
   validateOrganizationScope(organizationId: string, resourceOrganizationId: string): void {
     if (organizationId !== resourceOrganizationId) {
       throw new ValidationError('Organization scope mismatch');
@@ -26,9 +14,20 @@ export class LaboratoryDomainRules {
   }
 
   sanitizePayload(payload: Record<string, unknown>): Record<string, unknown> {
-    const allowed = new Set(["patientId","orderingProviderId","testCode","testName","priority","status","collectedAt","resultValue"]);
-    return Object.fromEntries(
-      Object.entries(payload).filter(([key]) => allowed.has(key)),
-    );
+    const blocked = new Set(['id', 'organizationId', 'createdAt', 'deletedAt', 'version']);
+    return Object.fromEntries(Object.entries(payload).filter(([k]) => !blocked.has(k)));
+  }
+
+  validateResultAgainstReference(analyteCode: string, value: number): void {
+    const ranges: Record<string, { low: number; high: number; criticalLow?: number; criticalHigh?: number }> = {
+      GLUCOSE: { low: 70, high: 100, criticalLow: 40, criticalHigh: 500 },
+      HGB: { low: 12, high: 17, criticalLow: 7, criticalHigh: 20 },
+      POTASSIUM: { low: 3.5, high: 5.0, criticalLow: 2.5, criticalHigh: 6.5 },
+    };
+    const range = ranges[analyteCode.toUpperCase()];
+    if (!range) return;
+    if (value < (range.criticalLow ?? -Infinity) || value > (range.criticalHigh ?? Infinity)) {
+      throw new ValidationError(`Critical value for ${analyteCode}: ${value}`);
+    }
   }
 }

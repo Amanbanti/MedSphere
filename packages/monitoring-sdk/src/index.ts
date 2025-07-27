@@ -5,3 +5,4 @@
 export * from './health';
 export * from './metrics';
 export * from './tracing';
+export * from './nestjs-instrumentation';

@@ -1,5 +1,6 @@
 /** @type {import('jest').Config} */
 module.exports = {
+  preset: '../../jest.preset.js',
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
   testRegex: 'test/unit/.*\\.spec\\.ts$',

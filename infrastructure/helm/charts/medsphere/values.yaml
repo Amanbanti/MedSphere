@@ -254,6 +254,16 @@ services:
       limits:
         cpu: "1"
         memory: 1Gi
+  diagnosis-ai:
+    enabled: true
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: "2"
+        memory: 4Gi
 
 monitoring:
   prometheus:

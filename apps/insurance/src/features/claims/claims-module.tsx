@@ -1,32 +1,71 @@
-import { Card, CardHeader, CardTitle, CardContent, PageHeader, DataTable, StatusPill } from '@medsphere/ui';
+'use client';
 
-const items = Array.from({ length: 8 }, (_, i) => ({
-  id: 'CLAIMS-${1000 + i}',
-  name: 'Claims item ${i + 1}',
-  status: ['active', 'pending', 'completed'][i % 3],
-  updatedAt: ['Today', 'Yesterday', '2 days ago'][i % 3],
-}));
+import { useMemo, useState } from 'react';
+import {
+  Card, CardHeader, CardTitle, CardContent, PageHeader, Button, Input, Select, DataTable, StatusPill,
+} from '@medsphere/ui';
+
+interface ClaimLine {
+  procedureCode: string;
+  quantity: number;
+  billedAmount: number;
+}
 
 export default function ClaimsModulePage() {
+  const [claimNumber, setClaimNumber] = useState('CLM-2026-001');
+  const [payer, setPayer] = useState('');
+  const [lines, setLines] = useState<ClaimLine[]>([
+    { procedureCode: '99213', quantity: 1, billedAmount: 150 },
+    { procedureCode: '80053', quantity: 1, billedAmount: 85 },
+  ]);
+
+  const totalBilled = useMemo(
+    () => lines.reduce((s, l) => s + l.billedAmount * l.quantity, 0),
+    [lines],
+  );
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Claims" description="Insurance portal — claims management module." />
+      <PageHeader
+        title="Claim Editor"
+        description="Build, validate, and submit professional claims."
+        actions={<><Button variant="outline">Save Draft</Button><Button>Submit Claim</Button></>}
+      />
+
       <Card>
-        <CardHeader>
-          <CardTitle>Claims Records</CardTitle>
+        <CardHeader><CardTitle>Claim Header</CardTitle></CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <Input value={claimNumber} onChange={(e) => setClaimNumber(e.target.value)} placeholder="Claim number" />
+          <Input placeholder="Patient MRN" />
+          <Select value={payer} onValueChange={setPayer} options={[
+            { value: 'payer1', label: 'Acme Health' },
+            { value: 'payer2', label: 'Blue Shield' },
+          ]} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row justify-between">
+          <CardTitle>Service Lines</CardTitle>
+          <Button variant="outline" size="sm" onClick={() => setLines([...lines, { procedureCode: '', quantity: 1, billedAmount: 0 }])}>Add Line</Button>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={[
-              { key: 'id', header: 'ID', cell: (row) => <span className="font-mono text-xs">{row.id}</span> },
-              { key: 'name', header: 'Name', cell: (row) => row.name },
-              { key: 'status', header: 'Status', cell: (row) => <StatusPill status={row.status}>{row.status}</StatusPill> },
-              { key: 'updatedAt', header: 'Updated', cell: (row) => row.updatedAt },
+              { key: 'code', header: 'CPT', cell: (r) => r.procedureCode },
+              { key: 'qty', header: 'Qty', cell: (r) => r.quantity },
+              { key: 'amt', header: 'Billed', cell: (r) => `$${(r.billedAmount * r.quantity).toFixed(2)}` },
             ]}
-            data={items}
-            keyExtractor={(row) => row.id}
+            data={lines.map((l, i) => ({ ...l, id: String(i) }))}
+            keyExtractor={(r) => r.id}
           />
+          <p className="mt-4 text-right font-medium">Total Billed: ${totalBilled.toFixed(2)}</p>
         </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Status</CardTitle></CardHeader>
+        <CardContent><StatusPill status="draft">DRAFT</StatusPill></CardContent>
       </Card>
     </div>
   );

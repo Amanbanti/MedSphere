@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { CorrelationId, CurrentUser } from '@medsphere/auth-sdk';
 import { successBody, type JwtAccessPayload, type ListQuery, type UUID } from '@medsphere/shared';
 import { CreatePrescriptionUseCase } from '../../application/use-cases/create-prescription.use-case';
@@ -6,6 +7,90 @@ import { RenewPrescriptionUseCase } from '../../application/use-cases/renew-pres
 import { CancelPrescriptionUseCase } from '../../application/use-cases/cancel-prescription.use-case';
 import { CheckPrescriptionInteractionsUseCase } from '../../application/use-cases/check-prescription-interactions.use-case';
 import { ListPrescriptionsUseCase } from '../../application/use-cases/list-prescriptions.use-case';
+
+export class CreatePrescriptionDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  prescriberId: string;
+
+  @IsString()
+  medicationName: string;
+
+  @IsString()
+  dosage: string;
+
+  @IsString()
+  frequency: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class RenewPrescriptionDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  prescriberId: string;
+
+  @IsString()
+  medicationName: string;
+
+  @IsString()
+  dosage: string;
+
+  @IsString()
+  frequency: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class CancelPrescriptionDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  prescriberId: string;
+
+  @IsString()
+  medicationName: string;
+
+  @IsString()
+  dosage: string;
+
+  @IsString()
+  frequency: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class CheckPrescriptionInteractionsDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  prescriberId: string;
+
+  @IsString()
+  medicationName: string;
+
+  @IsString()
+  dosage: string;
+
+  @IsString()
+  frequency: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
 
 @Controller('prescriptions')
 export class PrescriptionController {
@@ -22,8 +107,8 @@ export class PrescriptionController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: CreatePrescriptionDto,
   ) {
     const result = await this.createPrescriptionUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -35,7 +120,6 @@ export class PrescriptionController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -45,8 +129,8 @@ export class PrescriptionController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: RenewPrescriptionDto,
   ) {
     const result = await this.renewPrescriptionUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -58,7 +142,6 @@ export class PrescriptionController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -68,8 +151,8 @@ export class PrescriptionController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: CancelPrescriptionDto,
   ) {
     const result = await this.cancelPrescriptionUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -81,7 +164,6 @@ export class PrescriptionController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -91,8 +173,8 @@ export class PrescriptionController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: CheckPrescriptionInteractionsDto,
   ) {
     const result = await this.checkPrescriptionInteractionsUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -104,7 +186,6 @@ export class PrescriptionController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -114,8 +195,8 @@ export class PrescriptionController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.listPrescriptionsUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -125,9 +206,8 @@ export class PrescriptionController {
       
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }

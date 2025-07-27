@@ -1,10 +1,74 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
 import { CorrelationId, CurrentUser } from '@medsphere/auth-sdk';
 import { successBody, type JwtAccessPayload, type ListQuery, type UUID } from '@medsphere/shared';
 import { ScheduleRadiologyStudyUseCase } from '../../application/use-cases/schedule-radiology-study.use-case';
 import { AcquireRadiologyImagesUseCase } from '../../application/use-cases/acquire-radiology-images.use-case';
 import { ReportRadiologyFindingsUseCase } from '../../application/use-cases/report-radiology-findings.use-case';
 import { ListRadiologyStudiesUseCase } from '../../application/use-cases/list-radiology-studies.use-case';
+
+export class ScheduleRadiologyStudyDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  modality: string;
+
+  @IsString()
+  bodyPart: string;
+
+  @IsString()
+  scheduledAt: string;
+
+  @IsString()
+  status: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class AcquireRadiologyImagesDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  modality: string;
+
+  @IsString()
+  bodyPart: string;
+
+  @IsString()
+  scheduledAt: string;
+
+  @IsString()
+  status: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
+
+export class ReportRadiologyFindingsDto {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  modality: string;
+
+  @IsString()
+  bodyPart: string;
+
+  @IsString()
+  scheduledAt: string;
+
+  @IsString()
+  status: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
 
 @Controller('radiology-studys')
 export class RadiologyStudyController {
@@ -20,8 +84,8 @@ export class RadiologyStudyController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: ScheduleRadiologyStudyDto,
   ) {
     const result = await this.scheduleRadiologyStudyUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -33,7 +97,6 @@ export class RadiologyStudyController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -43,8 +106,8 @@ export class RadiologyStudyController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: AcquireRadiologyImagesDto,
   ) {
     const result = await this.acquireRadiologyImagesUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -56,7 +119,6 @@ export class RadiologyStudyController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -66,8 +128,8 @@ export class RadiologyStudyController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     @Param('id') id: string,
-    @Body() body: Record<string, unknown>,
     
+    @Body() body: ReportRadiologyFindingsDto,
   ) {
     const result = await this.reportRadiologyFindingsUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -79,7 +141,6 @@ export class RadiologyStudyController {
       
       
       payload: body,
-      query: query as ListQuery,
     });
     return successBody(result, correlationId);
   }
@@ -89,8 +150,8 @@ export class RadiologyStudyController {
     @CurrentUser() user: JwtAccessPayload,
     @CorrelationId() correlationId: string,
     
-    
     @Query() query: Record<string, unknown>,
+    
   ) {
     const result = await this.listRadiologyStudiesUseCase.execute({
       organizationId: user.orgId as UUID,
@@ -100,9 +161,8 @@ export class RadiologyStudyController {
       
       
       
-      
-      payload: body,
       query: query as ListQuery,
+      
     });
     return successBody(result, correlationId);
   }

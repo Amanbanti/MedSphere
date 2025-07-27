@@ -1,37 +1,49 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { nowIso, type UUID } from '@medsphere/shared';
 import type { RecordPatientAllergyCommand } from '../commands/record-patient-allergy.command';
 import { PATIENT_REPOSITORY, type PatientRepository } from '../../domain/repositories/patient.repository';
-import { Patient } from '../../domain/entities/patient.entity';
-import {
-  PatientNotFoundError,
-  ValidationError,
-} from '../../domain/errors/patient.errors';
+import { PatientAccessPolicy } from '../../domain/policies/patient-access.policy';
+import { PatientDomainRules } from '../../domain/services/patient-rules.service';
+import { PatientKafkaPublisher } from '../../infrastructure/messaging/patient-kafka.publisher';
+import { InMemoryPatientCacheAdapter } from '../../infrastructure/cache/in-memory-patient.cache';
+import { PatientNotFoundError, ValidationError } from '../../domain/errors/patient.errors';
 import { PatientMapper } from '../mappers/patient.mapper';
 
 @Injectable()
 export class RecordPatientAllergyUseCase {
+  private readonly rules = new PatientDomainRules();
+
   constructor(
     @Inject(PATIENT_REPOSITORY) private readonly repository: PatientRepository,
+    private readonly eventPublisher: PatientKafkaPublisher,
+    private readonly cache: InMemoryPatientCacheAdapter,
   ) {}
 
   async execute(command: RecordPatientAllergyCommand) {
-    if (!command.id && !command.payload) {
-      throw new ValidationError('id or payload is required');
-    }
-    const targetId = command.id ?? (command.payload?.id as UUID | undefined);
-    if (!targetId) {
-      throw new ValidationError('id is required');
-    }
-    const entity = await this.repository.findById(command.organizationId, targetId);
-    if (!entity) {
-      throw new PatientNotFoundError(targetId);
-    }
+    PatientAccessPolicy.assertTenantScope(command.actor, command.organizationId);
+    PatientAccessPolicy.assertCanWrite(command.actor);
+
+    const patientId = command.id ?? (command.payload?.patientId as UUID);
+    if (!patientId) throw new ValidationError('patientId is required');
+    const allergen = command.payload?.allergen as string;
+    const severity = command.payload?.severity as string;
+    if (!allergen?.trim()) throw new ValidationError('allergen is required');
+    if (!severity) throw new ValidationError('severity is required');
+    this.rules.validateAllergySeverity(severity);
+
+    const entity = await this.repository.findById(command.organizationId, patientId);
+    if (!entity) throw new PatientNotFoundError(patientId);
     entity.assertActive();
+
     const now = command.now ?? nowIso();
     entity.touch(now);
     await this.repository.save(entity);
+    await this.cache.invalidate(command.organizationId, patientId);
+    this.eventPublisher.publishUpdated(command.organizationId, patientId, command.actorId, {
+      allergen,
+      severity,
+      action: 'allergy_recorded',
+    });
     return PatientMapper.toDto(entity);
   }
 }
